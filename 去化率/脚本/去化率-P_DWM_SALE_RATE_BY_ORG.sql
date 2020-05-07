@@ -307,7 +307,8 @@ from tmp_sale_rate_by_org where IS_COMPANY=1 and id=spid_sum and LEVEL_RANK<=2
 ;
 ----插入到目标表
 IF is_photograph <> 0 THEN
-   DELETE FROM dwm_sale_rate_by_org where REMARK=dwm_REMARK and X_AXIS_PERIOD=p_X_AXIS_PERIOD;
+   DELETE FROM dwm_sale_rate_by_org where  X_AXIS_PERIOD=p_X_AXIS_PERIOD;
+   --and REMARK=dwm_REMARK;
 
    INSERT INTO dwm_sale_rate_by_org (
 ID,--【1】主键

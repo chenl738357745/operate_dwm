@@ -278,7 +278,8 @@ IF is_photograph <> 0 THEN
         
 --    INSERT INTO  DWM_SALE_RATE_PROJECT_HISTORY
 --    select * from  DWM_SALE_RATE_BY_PROJECT where REMARK=dwm_REMARK;
-    DELETE FROM DWM_SALE_RATE_BY_PROJECT where REMARK=dwm_REMARK;
+    DELETE FROM DWM_SALE_RATE_BY_PROJECT ;
+    --where REMARK=dwm_REMARK;
 
         INSERT INTO DWM_SALE_RATE_BY_PROJECT (
 ID---¡¾1¡¿Ö÷¼ü
@@ -392,7 +393,7 @@ PROJECT_ID      ID---¡¾1¡¿Ö÷¼ü
 commit;
     END IF;
 OPEN proj_info FOR 
-select * from  TMP_SALE_RATE_BY_PROJECT where id=spid;
+select rownum,p.* from  TMP_SALE_RATE_BY_PROJECT p where id=spid;
 
 
 END P_DWM_SALE_RATE_BY_PROJ;
