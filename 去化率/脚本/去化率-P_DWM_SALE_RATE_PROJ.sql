@@ -158,7 +158,7 @@ WHERE project.approval_status = '已审核';
 
     IF is_photograph <> 0 THEN
 --先删除，历史的项目数据，后插入新的数据
-        DELETE FROM dwm_sale_rate_project;-- where REMARK=dwm_REMARK;
+        DELETE FROM dwm_sale_rate_project  where CREATED<sys_created;
 
         INSERT INTO dwm_sale_rate_project (
             ID,--主键
@@ -184,7 +184,7 @@ WHERE project.approval_status = '已审核';
         REMARK--备注信息
         )
             SELECT
-        project_id,
+        get_uuid,
         PROJECT_ID,--项目ID
         PROJECT_NAME,--项目名称
         ORG_ID,--所属事业部ID

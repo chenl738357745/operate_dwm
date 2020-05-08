@@ -183,25 +183,24 @@ when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else
 ---------->房间“合同成交总价”
 ---------->房间“销售状态”=签约
 ,sum(case when room.SALE_STATE='签约' then room.TRADE_TOTAL else 0 end ) as "全案已去化货值"
-,sum(case when room.SALE_STATE='签约' and build.GET_PRE_SALE_PERMIT_DATE is not null then room.TRADE_TOTAL  else 0 end ) as "已签约且已取证"
 ------全案（已领证货值）：
 ---------->房间“面价标准总价”:在计算“货值去化率”时，对已签约房间（有可能出现优惠打折），分子分母均按“签约金额”计算“货值去化率”。
 ,sum(case when room.SALE_STATE='签约'  then room.TRADE_TOTAL  
-when build.GET_PRE_SALE_PERMIT_DATE is not null then room.BZ_TOTAL else 0 end )  as "全案已领证货值"
+when room.SALE_STATE<>'签约' and build.GET_PRE_SALE_PERMIT_DATE is not null then room.BZ_TOTAL else 0 end )  as "全案已领证货值"
 ------全案（已去化面积）:
 ---------->房间“最新建筑面积”
 ---------->房间“销售状态”=签约  
 ,sum(case when room.SALE_STATE='签约'  then room.NEW_BLD_AREA else 0 end ) as "全案已去化面积"
 ------全案（已领证面积）:
 ---------->房间“最新建筑面积”
-,sum(case when build.GET_PRE_SALE_PERMIT_DATE is not null then room.NEW_BLD_AREA  else 0 end )  as "全案已领证面积"
+,sum(case when room.SALE_STATE='签约' or build.GET_PRE_SALE_PERMIT_DATE is not null then room.NEW_BLD_AREA  else 0 end )  as "全案已领证面积"
 ------全案（已去化套数):
 ---------->房间“汇总”
 ---------->房间“销售状态”=签约  
 ,sum(case when room.SALE_STATE='签约' then 1 else 0 end ) as "全案已去化套数"
 ------全案（已领证套数):
 ---------->房间“汇总”
-,sum(case when build.GET_PRE_SALE_PERMIT_DATE is not null then 1 else 0 end )  as "全案已领证套数"
+,sum(case when room.SALE_STATE='签约' or build.GET_PRE_SALE_PERMIT_DATE is not null then 1 else 0 end )  as "全案已领证套数"
 ------现房------现房------现房------现房------现房------现房------现房------现房------现房
 ----现房去化面积
 ,sum(case when  proj.COMPLETION_RECORD_DATE is not null and room.SALE_STATE = '签约' and build.GET_PRE_SALE_PERMIT_DATE>proj.COMPLETION_RECORD_DATE then  room.NEW_BLD_AREA else 0 end) as "现房去化面积" ,
@@ -280,7 +279,7 @@ IF is_photograph <> 0 THEN
 --    select * from  DWM_SALE_RATE_BY_PROJECT where REMARK=dwm_REMARK;
     DELETE FROM DWM_SALE_RATE_BY_PROJECT ;
     --where REMARK=dwm_REMARK;
-
+commit;
         INSERT INTO DWM_SALE_RATE_BY_PROJECT (
 ID---【1】主键
 ,PROJECT_ID---【2】项目ID
@@ -393,7 +392,7 @@ PROJECT_ID      ID---【1】主键
 commit;
     END IF;
 OPEN proj_info FOR 
-select rownum,p.* from  TMP_SALE_RATE_BY_PROJECT p where id=spid;
+select PROJECT_ID,count(PROJECT_ID) from  TMP_SALE_RATE_BY_PROJECT p where id=spid group by PROJECT_ID order by count(PROJECT_ID);
 
 
 END P_DWM_SALE_RATE_BY_PROJ;
