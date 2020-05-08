@@ -1,4 +1,8 @@
-create or replace PROCEDURE "P_DWM_SALE_RATE_BY_GRANULARITY" AS
+create or replace PROCEDURE "P_DWM_SALE_RATE_BY_GRANULARITY" (
+    spid_info   OUT  SYS_REFCURSOR,
+    t_room_info   OUT  SYS_REFCURSOR ,
+    spid_tree_info   OUT  SYS_REFCURSOR
+) AS
 		--去化率试算
 		--作者：陈丽
 		--日期：2020-04-10
@@ -51,11 +55,12 @@ BEGIN
             v_sql := '''''';
         END IF;
         
-       v_sql:= 'INSERT INTO TMP_ROOM(id,room_ID,ROOM_NAME,PRODUCT_NAME,AREA_LEVEL) select '''||spid||''',id,room_name,room.product_name,'
+       v_sql:= 'INSERT INTO TMP_ROOM(id,room_ID,ROOM_NAME,PRODUCT_NAME,AREA_LEVEL) select '''||spid||''',id,room_name,case when room.product_name<>''住宅'' then ''商铺及其他'' else ''住宅'' end,'
        ||v_sql|| ' as NODE_WARNING from mdm_room room';
          dbms_output.put_line(v_sql);
        execute immediate v_sql;
         
+        OPEN t_room_info FOR select * from TMP_ROOM;  
 ------------------------------------------------------------项目基本信息
 BEGIN
 
@@ -84,7 +89,7 @@ select spid_tree
 ,b."业态" as text   
  from (select * from tmp_proj_base where id = PROJ_BASE_SPID) proj cross join
 (select 
-   l.attribute_name as "业态"  from mdm_attribute_area_level l where parent_id is null) b
+   case when l.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as "业态"  from mdm_attribute_area_level l where parent_id is null) b
    union all
 -----面积段
 select spid_tree
@@ -95,12 +100,15 @@ select spid_tree
 ,a.areaStage as text
 from  (select * from tmp_proj_base where id = PROJ_BASE_SPID) proj cross join
 ( select 
-    l.attribute_name as areaStage,p.attribute_name as ptype from mdm_attribute_area_level l
+    l.attribute_name as areaStage,case when p.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as ptype from mdm_attribute_area_level l
     left join mdm_attribute_area_level p on l.parent_id=p.id 
     where p.id is not null) a;
-------------------------------------------------------面积段数据
+    
+OPEN spid_tree_info FOR select * from TMP_SALE_RATE_BY_GRANULARITY where id=spid_tree;  
+------------------------------------------------------面积段数据 spid
 
  INSERT INTO TMP_SALE_RATE_BY_GRANULARITY (ID---【1】主键
+,GRANULARITY_ID
 ,PROJECT_ID---【2】项目ID
 ,PROJECT_NAME
 ,FO_SALE_OUT_COUNT---【3】首开去化套数
@@ -158,6 +166,7 @@ from  (select * from tmp_proj_base where id = PROJ_BASE_SPID) proj cross join
 ,REMARK
 )select 
 spid as ID---【1】主键
+,project_id||PRODUCT_NAME||AREA_LEVEL
 ,project_id as PROJECT_ID---【2】项目ID
 ,project_name
 -----------------------------------K1、首开去化率开始--------------------
@@ -229,8 +238,8 @@ sum(case when room.SALE_STATE='签约' and proj.first_open_date<build.GET_PRE_SALE
 ------首次开盘已取证货值（首开推售货值）：
 ---------->房间“面价标准总价”:在计算“货值去化率”时，对已签约房间（有可能出现优惠打折），分子分母均按“签约金额”计算“货值去化率”。
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when room.SALE_STATE='签约' and room.PRE_SELL_PERMIT_DATE<proj.first_open_date then room.TRADE_TOTAL 
-when room.PRE_SELL_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else 0 end )  as "首开推售货值"
+,sum(case when room.SALE_STATE='签约' and build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.TRADE_TOTAL 
+when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else 0 end )  as "首开推售货值"
 ------首次开盘30天内的签约面积（首开去化面积）:
 ---------->房间“最新建筑面积”
 ---------->"项目开盘"的实际完成日期 <合同签约日期<"项目开盘"的实际完成日期 +30天
@@ -239,7 +248,7 @@ when room.PRE_SELL_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else 0 en
 ------首次开盘的已取证面积（首开推售面积）:
 ---------->房间“最新建筑面积”
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when room.PRE_SELL_PERMIT_DATE<proj.first_open_date then room.NEW_BLD_AREA  else 0 end )  as "首开推售面积"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.NEW_BLD_AREA  else 0 end )  as "首开推售面积"
 ------首次开盘30天内的签约套数（首开去化套数）:
 ---------->房间“汇总”
 ---------->"项目开盘"的实际完成日期 <合同签约日期<"项目开盘"的实际完成日期 +30天
@@ -248,32 +257,32 @@ when room.PRE_SELL_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else 0 en
 ------首次开盘的已取证套数（首开推售套数）:
 ---------->房间“汇总”
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when room.PRE_SELL_PERMIT_DATE<proj.first_open_date then 1 else 0 end )  as "首开推售套数"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then 1 else 0 end )  as "首开推售套数"
 
 ------全案------全案------全案------全案------全案------全案------全案 
 ------全案（已去化货值）: 
 ---------->房间“合同成交总价”
 ---------->房间“销售状态”=签约
 ,sum(case when room.SALE_STATE='签约' then room.TRADE_TOTAL else 0 end ) as "全案已去化货值"
-,sum(case when room.SALE_STATE='签约' and room.PRE_SELL_PERMIT_DATE is not null then room.TRADE_TOTAL  else 0 end ) as "已签约且已取证"
+,sum(case when room.SALE_STATE='签约' and build.GET_PRE_SALE_PERMIT_DATE is not null then room.TRADE_TOTAL  else 0 end ) as "已签约且已取证"
 ------全案（已领证货值）：
 ---------->房间“面价标准总价”:在计算“货值去化率”时，对已签约房间（有可能出现优惠打折），分子分母均按“签约金额”计算“货值去化率”。
 ,sum(case when room.SALE_STATE='签约'  then room.TRADE_TOTAL  
-when room.PRE_SELL_PERMIT_DATE is not null then room.BZ_TOTAL else 0 end )  as "全案已领证货值"
+when build.GET_PRE_SALE_PERMIT_DATE is not null then room.BZ_TOTAL else 0 end )  as "全案已领证货值"
 ------全案（已去化面积）:
 ---------->房间“最新建筑面积”
 ---------->房间“销售状态”=签约  
 ,sum(case when room.SALE_STATE='签约'  then room.NEW_BLD_AREA else 0 end ) as "全案已去化面积"
 ------全案（已领证面积）:
 ---------->房间“最新建筑面积”
-,sum(case when room.PRE_SELL_PERMIT_DATE is not null then room.NEW_BLD_AREA  else 0 end )  as "全案已领证面积"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE is not null then room.NEW_BLD_AREA  else 0 end )  as "全案已领证面积"
 ------全案（已去化套数):
 ---------->房间“汇总”
 ---------->房间“销售状态”=签约  
 ,sum(case when room.SALE_STATE='签约' then 1 else 0 end ) as "全案已去化套数"
 ------全案（已领证套数):
 ---------->房间“汇总”
-,sum(case when room.PRE_SELL_PERMIT_DATE is not null then 1 else 0 end )  as "全案已领证套数"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE is not null then 1 else 0 end )  as "全案已领证套数"
 ------现房------现房------现房------现房------现房------现房------现房------现房------现房
 ----现房去化面积
 ,sum(case when  proj.COMPLETION_RECORD_DATE is not null and room.SALE_STATE = '签约' and build.GET_PRE_SALE_PERMIT_DATE>proj.COMPLETION_RECORD_DATE then  room.NEW_BLD_AREA else 0 end) as "现房去化面积" ,
@@ -354,7 +363,8 @@ group by proj.project_id
    where  PRODUCT_NAME  is not null
 ----------------------业态面积段特有 end
 ;
-
+   
+OPEN spid_info FOR select * from TMP_SALE_RATE_BY_GRANULARITY where id=spid;  
 ------------------------------------------------------数据插入表
 DELETE FROM DWM_SALE_RATE_BY_GRANULARITY where REMARK=dwm_REMARK;
 
