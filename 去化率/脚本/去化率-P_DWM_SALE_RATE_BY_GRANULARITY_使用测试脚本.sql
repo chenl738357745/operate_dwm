@@ -1,3 +1,5 @@
 ----mssql 
-select *,'sum('+×Ö¶Î+'),--¡¾'+cast(ĞòºÅ as nvarchar(100))+'¡¿'+ÃèÊö from [dbo].[Table_filed] 
+select *,'sum('+×Ö¶Î+'),--¡¾'+cast(ĞòºÅ as nvarchar(100))+'¡¿'+ÃèÊö from 
+select * from dual;
+
 order by (case when ÃèÊö like '%/%' or ÃèÊö like '%-%'  then 1 else 0 end)

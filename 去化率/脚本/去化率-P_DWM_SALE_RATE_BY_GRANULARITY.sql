@@ -325,80 +325,82 @@ group by proj.project_id
     proj.exhibition_area_open_date,
     proj.plan_approval_date,
     proj.is_operate,
-    proj.is_construction_began) area_stage 
-    on tree.GRANULARITY_ID=area_stage.PARENT_ID  
+    proj.is_construction_began ) area_stage 
+    on tree.GRANULARITY_ID=area_stage.GRANULARITY_ID 
 ;
-OPEN spid_area_stage_info FOR select rownum,s.* from TMP_SALE_RATE_BY_GRANULARITY s where id=spid_area_stage ;
+ 
+
+OPEN spid_area_stage_info FOR select rownum,s.* from TMP_SALE_RATE_BY_GRANULARITY s where id=spid_area_stage  ;
 ------------------------------------------------------------计算面积段指标spid_sum
---INSERT INTO TMP_SALE_RATE_BY_GRANULARITY (ID---【1】主键
---,GRANULARITY_ID--颗粒度id
---,PROJECT_ID---【2】项目ID
---,PROJECT_NAME
---,PARENT_ID  
---,DATA_GRANULARITY 
---
---,FO_SALE_OUT_COUNT---【3】首开去化套数
---,FO_SALE_COUNT---【4】首开推售套数
---,FO_SALE_OUT_AREA---【6】首开去化面积
---,FO_SALE_AREA---【7】首开推售面积
---,FO_SALE_OUT_MONEY---【9】首开去化货值
---,FO_SALE_MONEY---【10】首开推售货值
---
---,PO_SALE_OUT_COUNT---【15】全案去化套数
---,PO_SALE_COUNT---【16】全案推售套数
---,PO_SALE_OUT_AREA---【18】全案去化面积
---,PO_SALE_AREA---【19】全案推售面积
---,PO_SALE_OUT_MONEY---【21】全案去化货值
---,PO_SALE_MONEY---【22】全案推售货值
---
---,EH_SALE_OUT_COUNT---【27】现房去化套数
---,EH_SALE_COUNT---【28】现房推售套数
---,EH_SALE_OUT_AREA---【30】现房去化面积
---,EH_SALE_AREA---【31】现房推售面积
---,EH_SALE_OUT_MONEY---【33】现房去化货值
---,EH_SALE_MONEY---【34】现房推售货值
---
---,SI_SALE_OUT_COUNT---【39】顽固性库存去化套数
---,SI_SALE_COUNT---【40】顽固性库存推售套数
---,SI_SALE_OUT_AREA---【42】顽固性库存去化面积
---,SI_SALE_AREA---【43】顽固性库存推售面积
---,SI_SALE_OUT_MONEY---【45】顽固性库存去化货值
---,SI_SALE_MONEY---【46】顽固性库存推售货值
---)
--- select spid_sum,GRANULARITY_ID--颗粒度id
---,PROJECT_ID---【2】项目ID
---,PROJECT_NAME--项目名称
---,PARENT_ID---父级id
---,DATA_GRANULARITY--颗粒度名称
---,(select sum(FO_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【3】首开去化套数
---,(select sum(FO_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【4】首开推售套数
---,(select sum(FO_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【6】首开去化面积
---,(select sum(FO_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【7】首开推售面积
---,(select sum(FO_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【9】首开去化货值
---,(select sum(FO_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【10】首开推售货值
---
---,(select sum(PO_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【15】全案去化套数
---,(select sum(PO_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【16】全案推售套数
---,(select sum(PO_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【18】全案去化面积
---,(select sum(PO_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【19】全案推售面积
---,(select sum(PO_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【21】全案去化货值
---,(select sum(PO_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【22】全案推售货值
---
---,(select sum(EH_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【27】现房去化套数
---,(select sum(EH_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【28】现房推售套数
---,(select sum(EH_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【30】现房去化面积
---,(select sum(EH_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【31】现房推售面积
---,(select sum(EH_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【33】现房去化货值
---,(select sum(EH_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【34】现房推售货值
---
---,(select sum(SI_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【39】顽固性库存去化套数
---,(select sum(SI_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【40】顽固性库存推售套数
---,(select sum(SI_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【42】顽固性库存去化面积
---,(select sum(SI_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【43】顽固性库存推售面积
---,(select sum(SI_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【45】顽固性库存去化货值
---,(select sum(SI_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id) ---【46】顽固性库存推售货值
---
---from TMP_SALE_RATE_BY_GRANULARITY s where id=spid_area_stage order by GRANULARITY_ID  ; 
+INSERT INTO TMP_SALE_RATE_BY_GRANULARITY (ID---【1】主键
+,GRANULARITY_ID--颗粒度id
+,PROJECT_ID---【2】项目ID
+,PROJECT_NAME
+,PARENT_ID  
+,DATA_GRANULARITY 
+
+,FO_SALE_OUT_COUNT---【3】首开去化套数
+,FO_SALE_COUNT---【4】首开推售套数
+,FO_SALE_OUT_AREA---【6】首开去化面积
+,FO_SALE_AREA---【7】首开推售面积
+,FO_SALE_OUT_MONEY---【9】首开去化货值
+,FO_SALE_MONEY---【10】首开推售货值
+
+,PO_SALE_OUT_COUNT---【15】全案去化套数
+,PO_SALE_COUNT---【16】全案推售套数
+,PO_SALE_OUT_AREA---【18】全案去化面积
+,PO_SALE_AREA---【19】全案推售面积
+,PO_SALE_OUT_MONEY---【21】全案去化货值
+,PO_SALE_MONEY---【22】全案推售货值
+
+,EH_SALE_OUT_COUNT---【27】现房去化套数
+,EH_SALE_COUNT---【28】现房推售套数
+,EH_SALE_OUT_AREA---【30】现房去化面积
+,EH_SALE_AREA---【31】现房推售面积
+,EH_SALE_OUT_MONEY---【33】现房去化货值
+,EH_SALE_MONEY---【34】现房推售货值
+
+,SI_SALE_OUT_COUNT---【39】顽固性库存去化套数
+,SI_SALE_COUNT---【40】顽固性库存推售套数
+,SI_SALE_OUT_AREA---【42】顽固性库存去化面积
+,SI_SALE_AREA---【43】顽固性库存推售面积
+,SI_SALE_OUT_MONEY---【45】顽固性库存去化货值
+,SI_SALE_MONEY---【46】顽固性库存推售货值
+)
+ select spid_sum,GRANULARITY_ID--颗粒度id
+,PROJECT_ID---【2】项目ID
+,PROJECT_NAME--项目名称
+,PARENT_ID---父级id
+,DATA_GRANULARITY--颗粒度名称
+,(select sum(FO_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【3】首开去化套数
+,(select sum(FO_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【4】首开推售套数
+,(select sum(FO_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【6】首开去化面积
+,(select sum(FO_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【7】首开推售面积
+,(select sum(FO_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【9】首开去化货值
+,(select sum(FO_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【10】首开推售货值
+
+,(select sum(PO_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【15】全案去化套数
+,(select sum(PO_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【16】全案推售套数
+,(select sum(PO_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【18】全案去化面积
+,(select sum(PO_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【19】全案推售面积
+,(select sum(PO_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【21】全案去化货值
+,(select sum(PO_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【22】全案推售货值
+
+,(select sum(EH_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【27】现房去化套数
+,(select sum(EH_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【28】现房推售套数
+,(select sum(EH_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【30】现房去化面积
+,(select sum(EH_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【31】现房推售面积
+,(select sum(EH_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【33】现房去化货值
+,(select sum(EH_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【34】现房推售货值
+
+,(select sum(SI_SALE_OUT_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【39】顽固性库存去化套数
+,(select sum(SI_SALE_COUNT) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【40】顽固性库存推售套数
+,(select sum(SI_SALE_OUT_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【42】顽固性库存去化面积
+,(select sum(SI_SALE_AREA) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【43】顽固性库存推售面积
+,(select sum(SI_SALE_OUT_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【45】顽固性库存去化货值
+,(select sum(SI_SALE_MONEY) from TMP_SALE_RATE_BY_GRANULARITY start with GRANULARITY_ID=s.GRANULARITY_ID connect by prior GRANULARITY_ID=parent_id and GRANULARITY_ID!=parent_id and  id=spid_area_stage) ---【46】顽固性库存推售货值
+
+from TMP_SALE_RATE_BY_GRANULARITY s where id=spid_area_stage order by GRANULARITY_ID  ; 
 OPEN spid_sum_info FOR select rownum,s.* from TMP_SALE_RATE_BY_GRANULARITY s where id=spid_sum ;
 ------------------------------------------------------------计算面积段指标spid_result
 --INSERT INTO TMP_SALE_RATE_BY_GRANULARITY (ID---【1】主键
@@ -407,7 +409,7 @@ OPEN spid_sum_info FOR select rownum,s.* from TMP_SALE_RATE_BY_GRANULARITY s whe
 --,PROJECT_NAME--项目名称
 --,PARENT_ID---父级id
 --,DATA_GRANULARITY--颗粒度名称
---
+
 --,FO_SALE_OUT_COUNT---【3】首开去化套数
 --,FO_SALE_COUNT---【4】首开推售套数
 --,FO_SALE_RATE_BY_COUNT---【5】首开去化率(按套数)（3/4）
