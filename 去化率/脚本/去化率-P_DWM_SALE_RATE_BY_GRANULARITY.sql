@@ -32,7 +32,7 @@ BEGIN
 ---------------------------------------------计算业态面积段1.拼接查询语句
  FOR item IN (
    select 
-    ' when '||l.lower_limit_value||l.upper_limit_type||'room.NEW_BLD_AREA and room.NEW_BLD_AREA '||l.lower_limit_type||l.upper_limit_value
+    ' when '||l.lower_limit_value||l.lower_limit_type||'room.NEW_BLD_AREA and room.NEW_BLD_AREA '||l.upper_limit_type||l.upper_limit_value
     ||' and (case when room.PRODUCT_NAME<>''住宅'' then ''商铺及其他'' else ''住宅'' end)='''||p.attribute_name||''' then ''' ||l.attribute_name||''' ' as aa,
     l.upper_limit_type,
     l.lower_limit_type,
@@ -55,7 +55,7 @@ BEGIN
             v_sql := '''''';
         END IF;
         
-       v_sql:= 'INSERT INTO TMP_ROOM(id,room_ID,ROOM_NAME,PRODUCT_NAME,AREA_LEVEL) select '''||spid||''',id,room_name,case when room.product_name<>''住宅'' then ''商铺及其他'' else ''住宅'' end,'
+       v_sql:= 'INSERT INTO TMP_ROOM(id,room_ID,BLD_AREA,ROOM_NAME,PRODUCT_NAME,AREA_LEVEL) select '''||spid||''',id,NEW_BLD_AREA,room_name,case when room.product_name<>''住宅'' then ''商铺及其他'' else ''住宅'' end,'
        ||v_sql|| ' as NODE_WARNING from mdm_room room';
          dbms_output.put_line(v_sql);
        execute immediate v_sql;
