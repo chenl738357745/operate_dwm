@@ -1,10 +1,9 @@
 CREATE OR REPLACE PROCEDURE "P_DWM_SALE_RATE_PROJ" (
     is_photograph    IN               NUMBER ,
-    proj_base_info   OUT              SYS_REFCURSOR,
-    proj_date_info   OUT              SYS_REFCURSOR,
     proj_base_spid   OUT              VARCHAR2
 ) AS
-		--去化率项目基础数据
+		--去化率项目基础数据刷新;作用=>去化率数据定时更新。
+        --调用范围：P_DWM_SALE_RATE_BY_PROJ,P_DWM_SALE_RATE_BY_GRANULARITY,根据proj_base_spid使用tmp_proj_base数据
 		--作者：陈丽
 		--日期：2020-04-10
     spid VARCHAR2(36); --使用临时表的批次号
@@ -25,7 +24,9 @@ node_project_open VARCHAR2(50):='988e38a7-7827-77eb-e053-0100007f3dda';	--备注--
 dwm_REMARK VARCHAR2(200):='测试-chenl';
 sys_created date:=sysdate;
 BEGIN
-   
+delete tmp_proj_related_date;
+delete tmp_proj_base;
+commit;
 --------创建临时表批次号
     SELECT
         get_uuid()
@@ -212,19 +213,6 @@ WHERE project.approval_status = '已审核';
     commit;
     END IF;
 
-    OPEN proj_base_info FOR SELECT
-                               rownum,b.*
-                           FROM
-                               tmp_proj_base b
-                           WHERE
-                               id = spid;
-
-    OPEN proj_date_info FOR SELECT
-                               *
-                           FROM
-                               tmp_proj_related_date
-                           WHERE
-                               id = spid;
 
     proj_base_spid := spid;
 END P_DWM_SALE_RATE_PROJ;

@@ -1,20 +1,21 @@
 create or replace PROCEDURE "P_DWM_SALE_RATE_BY_PROJ" (
-    is_photograph_p in number:=0,
-    proj_info   OUT              SYS_REFCURSOR,
+    IS_PHOTOGRAPH in number:=0,
     proj_SPID  out NVARCHAR2
     
 ) AS
-		--去化率试算
+		--项目颗粒度去化率拍照；作用=》定时拍照
+        --调用范围=》P_DWM_SALE_RATE_BY_ORG
 		--作者：陈丽
 		--日期：2020-04-10
   PROJ_BASE_INFO SYS_REFCURSOR;
   PROJ_DATE_INFO SYS_REFCURSOR;
   PROJ_BASE_SPID VARCHAR2(2000);
-  IS_PHOTOGRAPH  number;
   sys_created date:=sysdate;
   spid VARCHAR2(360); --使用临时表的批次号
   dwm_REMARK VARCHAR2(200):='测试-chenl';
 BEGIN
+delete TMP_SALE_RATE_BY_PROJECT;
+commit;
 --------创建临时表批次号
     SELECT
         get_uuid()
@@ -24,12 +25,8 @@ BEGIN
 proj_SPID:=spid;
 ------项目基本信息
 BEGIN
-  IS_PHOTOGRAPH := is_photograph_p;
 
-  P_DWM_SALE_RATE_PROJ(
-    IS_PHOTOGRAPH => 0,
-    PROJ_BASE_INFO => PROJ_BASE_INFO,
-    PROJ_DATE_INFO => PROJ_DATE_INFO,
+  P_DWM_SALE_RATE_PROJ(0,
     PROJ_BASE_SPID => PROJ_BASE_SPID
   );
     END;
@@ -274,13 +271,123 @@ group by proj.project_id
 -- 
 IF is_photograph <> 0 THEN
 ----先将表数据移入，历史的项目数据，后插入新的数据
-        
---    INSERT INTO  DWM_SALE_RATE_PROJECT_HISTORY
---    select * from  DWM_SALE_RATE_BY_PROJECT where REMARK=dwm_REMARK;
-    DELETE FROM DWM_SALE_RATE_BY_PROJECT ;
+------------------------------------------------------数据移入历史表;
+INSERT INTO dwm_sale_rate_by_proj_history (
+    id,
+    project_id,
+    fo_sale_out_count,
+    fo_sale_count,
+    fo_sale_rate_by_count,
+    fo_sale_out_area,
+    fo_sale_area,
+    fo_sale_rate_by_area,
+    fo_sale_out_money,
+    fo_sale_money,
+    fo_sale_rate_by_money,
+    fo_surplus_sale_money,
+    fo_sale_average_money,
+    fo_sale_out_average_money,
+    po_sale_out_count,
+    po_sale_count,
+    po_sale_rate_by_count,
+    po_sale_out_area,
+    po_sale_area,
+    po_sale_rate_by_area,
+    po_sale_out_money,
+    po_sale_money,
+    po_sale_rate_by_money,
+    po_surplus_sale_money,
+    po_sale_average_money,
+    po_sale_out_average_money,
+    eh_sale_out_count,
+    eh_sale_count,
+    eh_sale_rate_by_count,
+    eh_sale_out_area,
+    eh_sale_area,
+    eh_sale_rate_by_area,
+    eh_sale_out_money,
+    eh_sale_money,
+    eh_sale_rate_by_money,
+    eh_surplus_sale_money,
+    eh_sale_average_money,
+    eh_sale_out_average_money,
+    si_sale_out_count,
+    si_sale_count,
+    si_sale_rate_by_count,
+    si_sale_out_area,
+    si_sale_area,
+    si_sale_rate_by_area,
+    si_sale_out_money,
+    si_sale_money,
+    si_sale_rate_by_money,
+    si_surplus_sale_money,
+    si_sale_average_money,
+    si_sale_out_average_money,
+    created,
+    remark
+)
+SELECT
+    id,
+    project_id,
+    fo_sale_out_count,
+    fo_sale_count,
+    fo_sale_rate_by_count,
+    fo_sale_out_area,
+    fo_sale_area,
+    fo_sale_rate_by_area,
+    fo_sale_out_money,
+    fo_sale_money,
+    fo_sale_rate_by_money,
+    fo_surplus_sale_money,
+    fo_sale_average_money,
+    fo_sale_out_average_money,
+    po_sale_out_count,
+    po_sale_count,
+    po_sale_rate_by_count,
+    po_sale_out_area,
+    po_sale_area,
+    po_sale_rate_by_area,
+    po_sale_out_money,
+    po_sale_money,
+    po_sale_rate_by_money,
+    po_surplus_sale_money,
+    po_sale_average_money,
+    po_sale_out_average_money,
+    eh_sale_out_count,
+    eh_sale_count,
+    eh_sale_rate_by_count,
+    eh_sale_out_area,
+    eh_sale_area,
+    eh_sale_rate_by_area,
+    eh_sale_out_money,
+    eh_sale_money,
+    eh_sale_rate_by_money,
+    eh_surplus_sale_money,
+    eh_sale_average_money,
+    eh_sale_out_average_money,
+    si_sale_out_count,
+    si_sale_count,
+    si_sale_rate_by_count,
+    si_sale_out_area,
+    si_sale_area,
+    si_sale_rate_by_area,
+    si_sale_out_money,
+    si_sale_money,
+    si_sale_rate_by_money,
+    si_surplus_sale_money,
+    si_sale_average_money,
+    si_sale_out_average_money,
+    created,
+    remark
+FROM
+    dwm_sale_rate_by_proj_history;
+commit;
+------------------------------------------------------删除已移入历史表树；
+DELETE FROM DWM_SALE_RATE_BY_PROJECT ;
     --where REMARK=dwm_REMARK;
 commit;
-        INSERT INTO DWM_SALE_RATE_BY_PROJECT (
+--------------------------------------------------------新增拍照数据;
+INSERT INTO DWM_SALE_RATE_BY_PROJECT (
 ID---【1】主键
 ,PROJECT_ID---【2】项目ID
 ,FO_SALE_OUT_COUNT---【3】首开去化套数
@@ -391,8 +498,4 @@ PROJECT_ID      ID---【1】主键
                 TMP_SALE_RATE_BY_PROJECT where id=spid;
 commit;
     END IF;
-OPEN proj_info FOR 
-select PROJECT_ID,count(PROJECT_ID) from  TMP_SALE_RATE_BY_PROJECT p where id=spid group by PROJECT_ID order by count(PROJECT_ID);
-
-
 END P_DWM_SALE_RATE_BY_PROJ;

@@ -1,22 +1,17 @@
-CREATE OR REPLACE PROCEDURE "P_DWM_SALE_RATE_BY_ORG" (
-    is_photograph   IN              NUMBER := 0,
-    org_info        OUT             SYS_REFCURSOR
-) AS
-		--去化率试算
+CREATE OR REPLACE PROCEDURE "P_DWM_SALE_RATE_BY_ORG"  AS
+		--公司颗粒度去化率；作用=》定时任务拍照
 		--作者：陈丽
 		--日期：2020-04-10
 
-    is_photograph_p   NUMBER;
-    proj_info         SYS_REFCURSOR;
-    proj_spid         NVARCHAR2(200);
+    PROJ_SPID NVARCHAR2(200);
     sys_created       DATE := SYSDATE;
     spid_tree              VARCHAR2(360); --使用临时表的批次号
     spid_sum              VARCHAR2(360); --使用临时表的批次号
     spid_result              VARCHAR2(360); --使用临时表的批次号
     dwm_remark        VARCHAR2(200) := '测试-chenl';
-    p_with            VARCHAR2(200);
     p_X_AXIS_PERIOD  VARCHAR2(200):=to_char(sysdate, 'yyyy') ||'-'||to_char(sysdate, 'MM' );
 BEGIN
+delete tmp_sale_rate_by_org;
 --------创建临时表批次号
     SELECT
         get_uuid(),get_uuid(),get_uuid()
@@ -25,9 +20,12 @@ BEGIN
         dual;  
 
 ------项目基本信息
-    BEGIN
-        p_dwm_sale_rate_by_proj(is_photograph_p => 0, proj_info => proj_info, proj_spid => proj_spid);
-    END;
+BEGIN
+  P_DWM_SALE_RATE_BY_PROJ(0,
+    PROJ_SPID => PROJ_SPID
+  );
+END;
+
 ----组装树
 INSERT INTO tmp_sale_rate_by_org (
         id,
@@ -306,7 +304,7 @@ dwm_remark--【46】备注信息
 from tmp_sale_rate_by_org where IS_COMPANY=1 and id=spid_sum and LEVEL_RANK<=2
 ;
 ----插入到目标表
-IF is_photograph <> 0 THEN
+
    DELETE FROM dwm_sale_rate_by_org where  X_AXIS_PERIOD=p_X_AXIS_PERIOD;
    --and REMARK=dwm_REMARK;
 
@@ -405,9 +403,6 @@ CREATED,--【45】创建时间
 "REMARK"
 from tmp_sale_rate_by_org where id=spid_result;
 commit;
-    END IF;
-    
-OPEN org_info FOR 
-select * from  tmp_sale_rate_by_org where  id=spid_result;
 
+    
 END p_dwm_sale_rate_by_org;

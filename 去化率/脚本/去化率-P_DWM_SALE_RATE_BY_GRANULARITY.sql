@@ -3,25 +3,22 @@ create or replace PROCEDURE "P_DWM_SALE_RATE_BY_GRANULARITY" (
     t_room_info   OUT  SYS_REFCURSOR ,
     spid_tree_info   OUT  SYS_REFCURSOR
 ) AS
-		--去化率试算
+		--业态面积段颗粒度去化率；作用=》定时任务拍照
 		--作者：陈丽
 		--日期：2020-04-10
-  PROJ_BASE_INFO SYS_REFCURSOR;
-  PROJ_DATE_INFO SYS_REFCURSOR;
   PROJ_BASE_SPID VARCHAR2(2000);
-  IS_PHOTOGRAPH  number;
   sys_created date:=sysdate;
   spid VARCHAR2(360); --使用临时表的批次号
   spid_tree VARCHAR2(360); --使用临时表的批次号
   dwm_REMARK VARCHAR2(200):='测试-chenl';
-  
   ----------------------
   v_sql clob;
   v_sql_start VARCHAR2(2000):= ' case ';
   v_sql_content clob:= '';
   v_sql_end VARCHAR2(2000):= '  else ''主数据面积段外'' end  ';
 BEGIN
-
+delete TMP_ROOM;
+delete TMP_SALE_RATE_BY_GRANULARITY;
 ---------------------------
 --------------------------------------------------------创建临时表批次号
     SELECT
@@ -44,8 +41,6 @@ BEGIN
     ---拼接字符串
          v_sql_content := v_sql_content||item.aa;
         END LOOP;
-    --dbms_output.put_line('123333');
-    --dbms_output.put_line(v_sql_content);
     --规则内容大于0才拼规则语句
         IF length(v_sql_content) > 0 THEN
             v_sql := v_sql_start
@@ -61,19 +56,15 @@ BEGIN
        execute immediate v_sql;
         
         OPEN t_room_info FOR select * from TMP_ROOM;  
-------------------------------------------------------------项目基本信息
+-----------------------------------------------项目基本信息
 BEGIN
-
-  P_DWM_SALE_RATE_PROJ(
-    IS_PHOTOGRAPH => 0,
-    PROJ_BASE_INFO => PROJ_BASE_INFO,
-    PROJ_DATE_INFO => PROJ_DATE_INFO,
+  P_DWM_SALE_RATE_PROJ(0,
     PROJ_BASE_SPID => PROJ_BASE_SPID
   );
     END;
-    
  ------------------------------------------------------------业态面积段树拼接 spid_tree
  INSERT INTO TMP_SALE_RATE_BY_GRANULARITY (ID---【1】主键
+,"SORT"
 ,GRANULARITY_ID--颗粒度id
 ,PROJECT_ID---【2】项目ID
 ,PROJECT_NAME--项目名称
@@ -82,6 +73,7 @@ BEGIN
 )
 -----业态
 select spid_tree
+,b.order_code
 ,proj.PROJECT_ID||b."业态" as GRANULARITY_ID
 ,proj.PROJECT_ID as projectId
 ,proj.PROJECT_NAME
@@ -89,10 +81,11 @@ select spid_tree
 ,b."业态" as text   
  from (select * from tmp_proj_base where id = PROJ_BASE_SPID) proj cross join
 (select 
-   case when l.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as "业态"  from mdm_attribute_area_level l where parent_id is null) b
+   case when l.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as "业态",order_code  from mdm_attribute_area_level l where parent_id is null) b
    union all
 -----面积段
 select spid_tree
+,a.order_code
 ,proj.PROJECT_ID||ptype||a.areaStage as GRANULARITY_ID
 ,proj.PROJECT_ID as projectId
 ,proj.PROJECT_NAME
@@ -100,7 +93,7 @@ select spid_tree
 ,a.areaStage as text
 from  (select * from tmp_proj_base where id = PROJ_BASE_SPID) proj cross join
 ( select 
-    l.attribute_name as areaStage,case when p.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as ptype from mdm_attribute_area_level l
+    l.attribute_name as areaStage,l.order_code,case when p.attribute_name<>'住宅' then '商铺及其他' else '住宅' end  as ptype from mdm_attribute_area_level l
     left join mdm_attribute_area_level p on l.parent_id=p.id 
     where p.id is not null) a;
     
@@ -364,11 +357,130 @@ group by proj.project_id
 ;
    
 OPEN spid_info FOR select * from TMP_SALE_RATE_BY_GRANULARITY where id=spid;  
-------------------------------------------------------数据插入表
-DELETE FROM DWM_SALE_RATE_BY_GRANULARITY where REMARK=dwm_REMARK;
-
+------------------------------------------------------数据移入历史表;
+INSERT INTO  dwm_sale_rate_gran_history (
+    id,
+    project_id,
+    fo_sale_out_count,
+    fo_sale_count,
+    fo_sale_rate_by_count,
+    fo_sale_out_area,
+    fo_sale_area,
+    fo_sale_rate_by_area,
+    fo_sale_out_money,
+    fo_sale_money,
+    fo_sale_rate_by_money,
+    fo_surplus_sale_money,
+    fo_sale_average_money,
+    fo_sale_out_average_money,
+    po_sale_out_count,
+    po_sale_count,
+    po_sale_rate_by_count,
+    po_sale_out_area,
+    po_sale_area,
+    po_sale_rate_by_area,
+    po_sale_out_money,
+    po_sale_money,
+    po_sale_rate_by_money,
+    po_surplus_sale_money,
+    po_sale_average_money,
+    po_sale_out_average_money,
+    eh_sale_out_count,
+    eh_sale_count,
+    eh_sale_rate_by_count,
+    eh_sale_out_area,
+    eh_sale_area,
+    eh_sale_rate_by_area,
+    eh_sale_out_money,
+    eh_sale_money,
+    eh_sale_rate_by_money,
+    eh_surplus_sale_money,
+    eh_sale_average_money,
+    eh_sale_out_average_money,
+    si_sale_out_count,
+    si_sale_count,
+    si_sale_rate_by_count,
+    si_sale_out_area,
+    si_sale_area,
+    si_sale_rate_by_area,
+    si_sale_out_money,
+    si_sale_money,
+    si_sale_rate_by_money,
+    si_surplus_sale_money,
+    si_sale_average_money,
+    si_sale_out_average_money,
+    parent_id,
+    data_granularity,
+    created,
+    remark,
+    sort
+)
+SELECT
+    id,
+    project_id,
+    fo_sale_out_count,
+    fo_sale_count,
+    fo_sale_rate_by_count,
+    fo_sale_out_area,
+    fo_sale_area,
+    fo_sale_rate_by_area,
+    fo_sale_out_money,
+    fo_sale_money,
+    fo_sale_rate_by_money,
+    fo_surplus_sale_money,
+    fo_sale_average_money,
+    fo_sale_out_average_money,
+    po_sale_out_count,
+    po_sale_count,
+    po_sale_rate_by_count,
+    po_sale_out_area,
+    po_sale_area,
+    po_sale_rate_by_area,
+    po_sale_out_money,
+    po_sale_money,
+    po_sale_rate_by_money,
+    po_surplus_sale_money,
+    po_sale_average_money,
+    po_sale_out_average_money,
+    eh_sale_out_count,
+    eh_sale_count,
+    eh_sale_rate_by_count,
+    eh_sale_out_area,
+    eh_sale_area,
+    eh_sale_rate_by_area,
+    eh_sale_out_money,
+    eh_sale_money,
+    eh_sale_rate_by_money,
+    eh_surplus_sale_money,
+    eh_sale_average_money,
+    eh_sale_out_average_money,
+    si_sale_out_count,
+    si_sale_count,
+    si_sale_rate_by_count,
+    si_sale_out_area,
+    si_sale_area,
+    si_sale_rate_by_area,
+    si_sale_out_money,
+    si_sale_money,
+    si_sale_rate_by_money,
+    si_surplus_sale_money,
+    si_sale_average_money,
+    si_sale_out_average_money,
+    parent_id,
+    data_granularity,
+    created,
+    remark,
+    sort
+FROM
+    dwm_sale_rate_by_granularity;
+commit;
+------------------------------------------------------删除已移入历史表树；
+DELETE FROM DWM_SALE_RATE_BY_GRANULARITY ;--where REMARK=dwm_REMARK;
+commit;
+--------------------------------------------------------新增拍照数据;
 INSERT INTO DWM_SALE_RATE_BY_GRANULARITY (
 ID---【1】主键
+,sort
 ,PROJECT_ID---【2】项目ID
 ,FO_SALE_OUT_COUNT---【3】首开去化套数
 ,FO_SALE_COUNT---【4】首开推售套数
@@ -424,6 +536,7 @@ ID---【1】主键
 ,REMARK---【52】备注信息
         )
    select  tree.GRANULARITY_ID--颗粒度id---【1】主键
+   ,tree.sort
 ,tree.PROJECT_ID,---【2】项目ID
 nvl(apdata.fo_sale_out_count,0),
 nvl(apdata.fo_sale_count,0),
