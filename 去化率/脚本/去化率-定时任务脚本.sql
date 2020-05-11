@@ -2,7 +2,7 @@ delete from SYS_AUTOJOB where id='bc3585fa-8e9c-46ea-a4ca-1aec6d4a6d61';
 ---项目基本信息定时任务
 /
 Insert into SYS_AUTOJOB (ID,JOB_NAME,CREATED_BY,CREATED_ON,REMARK,EXECUTE_SQL_PROCESS,WEB_API_URL,HTTP_METHOD,JOB_DESCRIPTION,JOB_TYPE,START_TIME,END_TIME,NEXT_EXECUTE_TIME,CREATED,JOB_STATUS,CRON_EXPRESSION,JOB_GROUP,PARAM_DICT,METHOD_NAME,CLASS_NAME)
-values ('bc3585fa-8e9c-46ea-a4ca-1aec6d4a6d61','定时更新项目基本信息','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
+values ('bc3585fa-8e9c-46ea-a4ca-1aec6d4a6d61','[去化率]更新项目基本信息','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
 ,'DECLARE
   PROJ_BASE_SPID VARCHAR2(200);
 BEGIN
@@ -10,13 +10,13 @@ BEGIN
     PROJ_BASE_SPID => PROJ_BASE_SPID
   );
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0/1 0/1 * * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e6c-46ea-a4ca-1aec6d4a6d61';
 /
 ---定时拍照项目颗粒度去化率
 Insert into SYS_AUTOJOB (ID,JOB_NAME,CREATED_BY,CREATED_ON,REMARK,EXECUTE_SQL_PROCESS,WEB_API_URL,HTTP_METHOD,JOB_DESCRIPTION,JOB_TYPE,START_TIME,END_TIME,NEXT_EXECUTE_TIME,CREATED,JOB_STATUS,CRON_EXPRESSION,JOB_GROUP,PARAM_DICT,METHOD_NAME,CLASS_NAME)
-values ('bc3585fa-8e6c-46ea-a4ca-1aec6d4a6d61','定时拍照项目颗粒度去化率','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
+values ('bc3585fa-8e6c-46ea-a4ca-1aec6d4a6d61','[去化率]拍照项目颗粒度','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
 ,'
 DECLARE
   PROJ_SPID NVARCHAR2(200);
@@ -26,25 +26,25 @@ BEGIN
     PROJ_SPID => PROJ_SPID
   );
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0/1 0/1 * * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e7c-46ea-a4ca-1aec6d4a6d61';
 /
 ---定时拍照公司颗粒度去化率
 Insert into SYS_AUTOJOB (ID,JOB_NAME,CREATED_BY,CREATED_ON,REMARK,EXECUTE_SQL_PROCESS,WEB_API_URL,HTTP_METHOD,JOB_DESCRIPTION,JOB_TYPE,START_TIME,END_TIME,NEXT_EXECUTE_TIME,CREATED,JOB_STATUS,CRON_EXPRESSION,JOB_GROUP,PARAM_DICT,METHOD_NAME,CLASS_NAME)
-values ('bc3585fa-8e7c-46ea-a4ca-1aec6d4a6d61','定时拍照公司颗粒度去化率','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
+values ('bc3585fa-8e7c-46ea-a4ca-1aec6d4a6d61','[去化率]拍照公司颗粒度','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
 ,'
 BEGIN
   P_DWM_SALE_RATE_BY_ORG();
 --rollback; 
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0/1 0/1 * * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e8c-46ea-a4ca-1aec6d4a6d61';
 /
 ---定时拍照公司颗粒度去化率
 Insert into SYS_AUTOJOB (ID,JOB_NAME,CREATED_BY,CREATED_ON,REMARK,EXECUTE_SQL_PROCESS,WEB_API_URL,HTTP_METHOD,JOB_DESCRIPTION,JOB_TYPE,START_TIME,END_TIME,NEXT_EXECUTE_TIME,CREATED,JOB_STATUS,CRON_EXPRESSION,JOB_GROUP,PARAM_DICT,METHOD_NAME,CLASS_NAME)
-values ('bc3585fa-8e8c-46ea-a4ca-1aec6d4a6d61','定时拍照业态面积段颗粒度去化率','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
+values ('bc3585fa-8e8c-46ea-a4ca-1aec6d4a6d61','[去化率]拍照业态面积段颗粒度','832f8d02-8ad5-4ea6-8b79-35ccef64d2e0',to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),null
 ,'
 DECLARE
   SPID_INFO SYS_REFCURSOR;
@@ -58,7 +58,7 @@ BEGIN
     SPID_TREE_INFO => SPID_TREE_INFO
   );
  END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0/1 0/1 * * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'刘慧君','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 
 
 
