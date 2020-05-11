@@ -10,7 +10,7 @@ BEGIN
     PROJ_BASE_SPID => PROJ_BASE_SPID
   );
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 02 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e6c-46ea-a4ca-1aec6d4a6d61';
 /
@@ -26,7 +26,7 @@ BEGIN
     PROJ_SPID => PROJ_SPID
   );
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 02 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e7c-46ea-a4ca-1aec6d4a6d61';
 /
@@ -38,7 +38,7 @@ BEGIN
   P_DWM_SALE_RATE_BY_ORG();
 --rollback; 
 END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 02 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 /
 delete from SYS_AUTOJOB where id='bc3585fa-8e8c-46ea-a4ca-1aec6d4a6d61';
 /
@@ -58,7 +58,7 @@ BEGIN
     SPID_TREE_INFO => SPID_TREE_INFO
   );
  END;
-',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 23 1/1 * ? ','zhkf_group1587628066288',null,null,null);
+',null,null,null,1,to_date('2020-04-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),to_date('2049-12-31 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'Áõ»Û¾ý','OPEN','0 0 02 1/1 * ? ','zhkf_group1587628066288',null,null,null);
 
 
 
