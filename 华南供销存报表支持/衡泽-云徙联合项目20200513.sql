@@ -5,7 +5,7 @@ INFO OUT SYS_REFCURSOR
 BEGIN
 
    OPEN INFO FOR 
-    ----数据存储数据的维度不一致，需要将数据按存储最小颗粒度业态重组业态对应的项目、分期、楼栋数据
+
     WITH basedata AS(
     ---末级业态，关联得到顶级业态。及末级业态所属对象关联(楼栋/项目/分期)
     select 
@@ -42,37 +42,35 @@ BEGIN
     where w.APPROVAL_STATUS='已审核'
     order by objtype.OBJ_TYPE )
     
-    ,可研 as(
-  --全盘:项目-业态顶级 
-    select ID,NAME,PARENT_ID
-    ,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
-    select id,project_name name,'可研' PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from SYS_PROJECT
+   ,可研 as(
+    --可研:项目-业态顶级业态-墨迹业态
+    select ID,NAME,PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    select id||'|可研' id,project_name name,'可研' PARENT_ID  from SYS_PROJECT
     union all
-   --业态顶级id：项目id|业态顶级id
-    select proj.id||'|'||PRODUCT_TYPE.id as id
-    ,proj.PROJECT_NAME||'-'||PRODUCT_TYPE.PRODUCT_TYPE_NAME as name
-    ,proj.id as PARENT_ID
-    ,'' as 套,0 as 面积,0 as 金额,0 as 均价
-    from  sys_project proj cross join (select * from
-    MDM_BUILD_PRODUCT_TYPE where product_type_level=1) PRODUCT_TYPE
+    --业态顶级id：项目id|分期id|业态顶级id
+    select proj.id||'|'||PRODUCT_TYPE.id as  id
+    ,proj.project_NAME||'-'||PRODUCT_TYPE.PRODUCT_TYPE_NAME as name
+    ,proj.ID||'|可研' as parent_id 
+    from  SYS_PROJECT proj cross join (select * from
+    MDM_BUILD_PRODUCT_TYPE where product_type_level=1) PRODUCT_TYPE)  
     union all 
-    select 项目id||'|'||分期id||'|'||顶级业态id||'|'||末级业态id as id
+    select 项目id||'|'||顶级业态id||'|'||末级业态id as id
     ,末级业态全路径
-    ,项目id||'|'||分期id||'|'||顶级业态id as parent_id
+    ,项目id||'|'||顶级业态id as parent_id
     ,'' as 套
     ,总可售面积 as 面积
     ,总货值 as 金额
     ,0 as 均价 from basedata 
-    where 阶段类型=0))
+    where 阶段类型=0 )
     
     ,全盘 as(
     --全盘:项目-分期-业态顶级 
     select ID,NAME,PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
-    select id,project_name name,'全盘' PARENT_ID  from SYS_PROJECT
+    select id||'|全盘' as id,project_name name,'全盘' PARENT_ID  from SYS_PROJECT
     union all
     select proj_stage.PROJECT_ID||'|'||proj_stage.id  as Id
     ,proj_stage.STAGE_FULL_NAME as NAME
-    ,proj_stage.PROJECT_ID as PARENT_ID
+    ,proj_stage.PROJECT_ID||'|全盘' as PARENT_ID
     from SYS_PROJECT_STAGE PROJ_STAGE
     union all
     --业态顶级id：项目id|分期id|业态顶级id
@@ -90,17 +88,27 @@ BEGIN
     ,总货值 as 金额
     ,0 as 均价 from basedata 
     where 阶段类型=10)
-    
+   
+   ,结果 as ( 
    select '可研' as id, '可研' as NAME,null PARENT_ID
     ,'' as 套,0 as 面积,0 as 金额,0 as 均价 from dual
-   union all
+    union all
    select '全盘' as id,'全盘' as NAME,null PARENT_ID
     ,'' as 套,0 as 面积,0 as 金额,0 as 均价 from dual
    union all
-   select ID,NAME,PARENT_ID,套,面积,0金额,均价 from 可研
+   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 可研
    union all
-   select ID,NAME,PARENT_ID,套,面积,0金额,均价 from 全盘
-     ;
+   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 全盘)
+   
+select ID,NAME,PARENT_ID,套,均价
+,面积,金额
+--,(select sum(面积) from 结果 m start with m.id=s.id connect by prior m.id=m.parent_id ) 面积
+--,(select sum(金额) from 结果 start with id=s.id connect by prior id=parent_id  ) 金额
+ from 结果 s;
+ 
+
+
+
 
     
     
