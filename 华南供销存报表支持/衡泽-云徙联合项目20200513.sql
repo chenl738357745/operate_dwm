@@ -43,7 +43,7 @@ BEGIN
     order by objtype.OBJ_TYPE )
     
    ,可研 as(
-    --可研:项目-业态顶级业态-墨迹业态
+    --可研:项目-业态顶级业态-末级业态
     select ID,NAME,PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
     select id||'|可研' id,project_name name,'可研' PARENT_ID  from SYS_PROJECT
     union all
@@ -61,7 +61,7 @@ BEGIN
     ,总可售面积 as 面积
     ,总货值 as 金额
     ,0 as 均价 from basedata 
-    where 阶段类型=0 )
+    where 阶段类型=0)
     
     ,全盘 as(
     --全盘:项目-分期-业态顶级 
@@ -102,18 +102,9 @@ BEGIN
    
 select ID,NAME,PARENT_ID,套,均价
 ,面积,金额
---,(select sum(面积) from 结果 m start with m.id=s.id connect by prior m.id=m.parent_id ) 面积
---,(select sum(金额) from 结果 start with id=s.id connect by prior id=parent_id  ) 金额
- from 结果 s;
- 
-
-
-
-
-    
-    
-    
-    
+,(select sum(面积) from 结果 m start with m.id=s.id connect by prior m.id=m.parent_id ) 面积
+,(select sum(金额) from 结果 start with id=s.id connect by prior id=parent_id  ) 金额
+ from 结果 s;  
 END P_DWM_云徙联合项目组;
 
 

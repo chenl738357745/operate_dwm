@@ -36,7 +36,7 @@
     
    ,可研 as(
     --全盘:项目-分期-业态顶级 
-    select ID,NAME,PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
     select id||'|可研' id,project_name name,'可研' PARENT_ID  from SYS_PROJECT
     union all
     --业态顶级id：项目id|分期id|业态顶级id
@@ -49,7 +49,7 @@
     select 项目id||'|'||顶级业态id||'|'||末级业态id as id
     ,末级业态全路径
     ,项目id||'|'||顶级业态id as parent_id
-    ,'' as 套
+    ,0 as 套
     ,总可售面积 as 面积
     ,总货值 as 金额
     ,0 as 均价 from basedata 
@@ -57,7 +57,7 @@
     
     ,全盘 as(
     --全盘:项目-分期-业态顶级 
-    select ID,NAME,PARENT_ID,'' as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
     select id||'|全盘' as id,project_name name,'全盘' PARENT_ID  from SYS_PROJECT
     union all
     select proj_stage.PROJECT_ID||'|'||proj_stage.id  as Id
@@ -75,22 +75,64 @@
     select 项目id||'|'||分期id||'|'||顶级业态id||'|'||末级业态id as id
     ,末级业态全路径
     ,项目id||'|'||分期id||'|'||顶级业态id as parent_id
-    ,'' as 套
+    ,0 as 套
     ,总可售面积 as 面积
     ,总货值 as 金额
     ,0 as 均价 from basedata 
     where 阶段类型=10)
+    
+     ,动态 as(
+    --全盘:项目-分期-业态顶级-楼栋-
+    select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    select id||'|动态' as id,project_name name,'动态' PARENT_ID  from SYS_PROJECT
+    union all
+    select proj_stage.PROJECT_ID||'|'||proj_stage.id||'|动态'  as Id
+    ,proj_stage.STAGE_FULL_NAME as NAME
+    ,proj_stage.PROJECT_ID||'|动态' as PARENT_ID
+    from SYS_PROJECT_STAGE PROJ_STAGE
+    union all
+    --业态顶级id：项目id|分期id|业态顶级id
+    select proj_stage.PROJECT_ID||'|'||proj_stage.id||'|'||PRODUCT_TYPE.id||'|动态' as  id
+    ,proj_stage.STAGE_FULL_NAME||'-'||PRODUCT_TYPE.PRODUCT_TYPE_NAME as name
+    ,proj_stage.PROJECT_ID||'|'||proj_stage.id||'|动态' as parent_id 
+    from  SYS_PROJECT_STAGE proj_stage cross join (select * from
+    MDM_BUILD_PRODUCT_TYPE where product_type_level=1) PRODUCT_TYPE)  
+    --楼栋级：
+    union all
+    select 项目id||'|'||分期id||'|'||顶级业态id||'|'||楼栋id as id
+    ,楼栋名称
+    ,项目id||'|'||分期id||'|'||顶级业态id||'|动态' as parent_id
+    ,0 as 套
+    ,0 as 面积
+    ,0 as 金额
+    ,0 as 均价 from basedata 
+    where 阶段类型=20 group by 楼栋id,项目id,分期id,顶级业态id,楼栋名称
+    union all 
+    select 项目id||'|'||分期id||'|'||顶级业态id||'|'||楼栋id||'|'||末级业态id as id
+    ,末级业态全路径
+    ,项目id||'|'||分期id||'|'||顶级业态id||'|'||楼栋id as parent_id
+    ,0 as 套
+    ,总可售面积 as 面积
+    ,总货值 as 金额
+    ,0 as 均价 from basedata 
+    where 阶段类型=20)
    
    ,结果 as ( 
    select '可研' as id, '可研' as NAME,null PARENT_ID
-    ,'' as 套,0 as 面积,0 as 金额,0 as 均价 from dual
+    ,0 as 套,0 as 面积,0 as 金额,0 as 均价 from dual
     union all
    select '全盘' as id,'全盘' as NAME,null PARENT_ID
-    ,'' as 套,0 as 面积,0 as 金额,0 as 均价 from dual
+    ,0 as 套,0 as 面积,0 as 金额,0 as 均价 from dual
+   union all
+   select '动态' as id,'动态' as NAME,null PARENT_ID
+    ,0 as 套,0 as 面积,0 as 金额,0 as 均价 from dual
    union all
    select ID,NAME,PARENT_ID,套,面积,金额,均价 from 可研
    union all
-   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 全盘)
+   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 全盘
+   union all 
+   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 动态
+   )
    
 select ID,NAME,PARENT_ID,套,均价
 ,面积,金额
