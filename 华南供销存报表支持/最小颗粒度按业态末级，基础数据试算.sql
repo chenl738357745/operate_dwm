@@ -4,8 +4,8 @@
     proj.id  as 项目id
     ,proj.PROJECT_NAME as 项目名称
     ,w.TARGET_WORTH_PHASE as 阶段类型
-    ,proj_stage.id 分期id
-    ,proj_stage.STAGE_NAME 分期名称
+    ,case when proj_stage.id is null then build_proj_stage.id else proj_stage.id end as 分期id
+    ,case when proj_stage.id is null then build_proj_stage.STAGE_NAME else proj_stage.STAGE_NAME end as 分期名称
     ,build.id as 楼栋id
     ,build.BUILD_NAME as 楼栋名称
     ,objtype.OBJ_TYPE as 业态对象父级类型
@@ -28,14 +28,15 @@
     left join sys_project proj on w.PROJ_ID=proj.id
     --关联楼栋获取业态的父级对象为楼栋的楼栋数据
     left join mdm_build build on dtl.obj_parent_id=build.id
+    left join SYS_PROJECT_STAGE build_proj_stage on build.PERIOD_ID=build_proj_stage.id
     --关联分期获取业态的父级对象为分期的分期数据
     left join SYS_PROJECT_STAGE proj_stage on dtl.obj_parent_id=proj_stage.id
     --只获取已审核的目标货值
-    where w.APPROVAL_STATUS='已审核'
+    where w.APPROVAL_STATUS='已审核' and w.is_delete=0
     order by objtype.OBJ_TYPE )
     
    ,可研 as(
-    --全盘:项目-分期-业态顶级 
+    --可研:项目-业态顶级-末级业态 
     select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
     select id||'|可研' id,project_name name,'可研' PARENT_ID  from SYS_PROJECT
     union all
@@ -56,8 +57,8 @@
     where 阶段类型=0)
     
     ,全盘 as(
-    --全盘:项目-分期-业态顶级 
-    select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    --全盘:项目-分期-业态顶级-末级业态 
+    select ID,NAME,PARENT_ID,0 as 套,10 as 面积,0 as 金额,0 as 均价  from (
     select id||'|全盘' as id,project_name name,'全盘' PARENT_ID  from SYS_PROJECT
     union all
     select proj_stage.PROJECT_ID||'|'||proj_stage.id  as Id
@@ -82,8 +83,8 @@
     where 阶段类型=10)
     
      ,动态 as(
-    --全盘:项目-分期-业态顶级-楼栋-
-    select ID,NAME,PARENT_ID,0 as 套,0 as 面积,0 as 金额,0 as 均价  from (
+    --全盘:项目-分期-业态顶级-楼栋-末级业态
+    select ID,NAME,PARENT_ID,20 as 套,0 as 面积,0 as 金额,0 as 均价  from (
     select id||'|动态' as id,project_name name,'动态' PARENT_ID  from SYS_PROJECT
     union all
     select proj_stage.PROJECT_ID||'|'||proj_stage.id||'|动态'  as Id
@@ -117,7 +118,7 @@
     ,0 as 均价 from basedata 
     where 阶段类型=20)
    
-   ,结果 as ( 
+   ,合并树结果 as ( 
    select '可研' as id, '可研' as NAME,null PARENT_ID
     ,0 as 套,0 as 面积,0 as 金额,0 as 均价 from dual
     union all
@@ -131,13 +132,16 @@
    union all
    select ID,NAME,PARENT_ID,套,面积,金额,均价 from 全盘
    union all 
-   select ID,NAME,PARENT_ID,套,面积,金额,均价 from 动态
+   select  ID,NAME,PARENT_ID,套,面积,金额,均价 from 动态
+   ),
+   
+   汇总后结果 as (
+   select ID,NAME,PARENT_ID,套
+  ,(select sum(面积) from 合并树结果 m start with m.id=s.id connect by prior m.id=m.parent_id ) 面积
+  ,(select sum(金额) from 合并树结果 start with id=s.id connect by prior id=parent_id  ) 金额
+   from 合并树结果 s 
    )
    
-select ID,NAME,PARENT_ID,套,均价
-,面积,金额
---,(select sum(面积) from 结果 m start with m.id=s.id connect by prior m.id=m.parent_id ) 面积
---,(select sum(金额) from 结果 start with id=s.id connect by prior id=parent_id  ) 金额
- from 结果 s;
- 
-
+   select ID,NAME,PARENT_ID,套,面积,金额||'万元' as 金额
+   ,case when 面积=0 then 0 ELSE 金额/面积 end||'万元' as 均价
+   from 汇总后结果 s ;
