@@ -24,7 +24,7 @@ CREATOR = d_createName;
 ---数据源注册
 	INSERT INTO udp_component_data_source ( id, data_source, data_source_type, parent_field, CHILD_FIELD,pk_field, lable_field, CREATOR )
 	VALUES
-( d_table_dataSource, 'DWM_huannan', 'procedure', 'PARENTID','ORGID', 'ORGID', 'ORGNAME', d_createName );
+( d_table_dataSource, 'DWM_huannan', 'procedure', 'PARENT_ID','ID', 'ID', 'NAME', d_createName );
 ---存储过程注册
 INSERT INTO udp_procedure_registration (id,name,code,state,creator) 
 VALUES (d_table_dataSource_procedure,'P_DWM_云徙联合项目组','DWM_huannan',1,d_createName);
