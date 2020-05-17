@@ -1,7 +1,7 @@
   WITH basedata AS(
     ---末级业态，关联得到顶级业态。及末级业态所属对象关联(楼栋/项目/分期)
     select 
-    proj.id  as 项目id
+     proj.id  as 项目id
     ,proj.PROJECT_NAME as 项目名称
     ,w.TARGET_WORTH_PHASE as 阶段类型
     ,case when proj_stage.id is null then build_proj_stage.id else proj_stage.id end as 分期id
@@ -16,24 +16,28 @@
     ,product_type.id as 顶级业态id
     ,product_type.product_type_short_name as 顶级业态
     ,dtl.obj_parent_id as 业态对象父级id
+    --只获取末级业态数据 建立最小业态颗粒度 对象类型（0：项目；20：分期；30：楼栋；40业态）
     from (select * from DWM_TARGET_WORTH_DTL where OBJ_TYPE=40) dtl
     --关联业态 找到业态顶级
     left join MDM_BUILD_PRODUCT_TYPE PRODUCT_TYPE 
     on substr(dtl.obj_name,1,instr(dtl.obj_name,'/',1,1)-1)=PRODUCT_TYPE.product_type_name
-    --关联自身找到业态的父级对象 类型
+    --关联自身找到末级业态的父级对象 类型
     left join DWM_TARGET_WORTH_DTL objtype on dtl.obj_parent_id=objtype.obj_id
     --关联主表建立用于与项目建立关联
     left join DWM_TARGET_WORTH w on dtl.TARGET_WORTH_ID=w.id
-    --关联项目获得项目id
+    --关联项目获得项目id和名称
     left join sys_project proj on w.PROJ_ID=proj.id
     --关联楼栋获取业态的父级对象为楼栋的楼栋数据
     left join mdm_build build on dtl.obj_parent_id=build.id
+    --关联楼栋获取业态的父级对象为楼栋的楼栋数据--对应分期
     left join SYS_PROJECT_STAGE build_proj_stage on build.PERIOD_ID=build_proj_stage.id
     --关联分期获取业态的父级对象为分期的分期数据
     left join SYS_PROJECT_STAGE proj_stage on dtl.obj_parent_id=proj_stage.id
     --只获取已审核的目标货值
     where w.APPROVAL_STATUS='已审核' and w.is_delete=0
     order by objtype.OBJ_TYPE )
+    
+    
     
    ,可研 as(
     --可研:项目-业态顶级-末级业态 
@@ -145,3 +149,16 @@
    select ID,NAME,PARENT_ID,套,面积,金额||'万元' as 金额
    ,case when 面积=0 then 0 ELSE 金额/面积 end||'万元' as 均价
    from 汇总后结果 s ;
+   
+   
+   
+   
+   --用外链接把AA表和CC表链接起来查询就来可以了
+SELECT AA.CODE, AA.NUM, AA.PRICE, CC.DATETIME, CC.SUMNUM
+  FROM test DWM_TARGET_WORTH
+  --下面的BB表查询的是根据自code分组查询num求和及最大知datetime，之后作为一个道表CC
+  LEFT JOIN (SELECT BB.CODE, SUM(NUM) SUMNUM,MAX(BB.DATETIME) DATETIME
+               FROM DWM_TARGET_WORTH BB
+              GROUP BY  TARGET_WORTH_PHASE,projcet_id) CC
+    ON AA.CODE = CC.CODE
+ WHERE AA.DATETIME = CC.DATETIME
