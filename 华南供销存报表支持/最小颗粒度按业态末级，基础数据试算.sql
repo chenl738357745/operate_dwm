@@ -22,7 +22,7 @@
     left join MDM_BUILD_PRODUCT_TYPE PRODUCT_TYPE 
     on substr(dtl.obj_name,1,instr(dtl.obj_name,'/',1,1)-1)=PRODUCT_TYPE.product_type_name
     --关联自身找到末级业态的父级对象 类型
-    left join DWM_TARGET_WORTH_DTL objtype on dtl.obj_parent_id=objtype.obj_id
+    left join DWM_TARGET_WORTH_DTL objtype on dtl.obj_parent_id=objtype.obj_id and dtl.TARGET_WORTH_id=objtype.TARGET_WORTH_id
     --关联主表建立用于与项目建立关联
     left join DWM_TARGET_WORTH w on dtl.TARGET_WORTH_ID=w.id
     --关联项目获得项目id和名称

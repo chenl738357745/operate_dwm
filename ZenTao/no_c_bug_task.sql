@@ -4,6 +4,7 @@ SELECT 外部唯一标识（关键字）
 ,result.禅道编号
 ,优先级
 ,CONCAT('【',产品,'】','-【',IFNULL(模块名,''),'】-',任务名称) as 任务名称
+,任务名称
 ,资源名称
 ,剩余工时
 ,产品
@@ -63,7 +64,6 @@ LEFT JOIN (
 	where zt_action.`comment`<>'' and zt_action.`comment` is not null
 	group by objectID ) AS action ON result.禅道编号=action.objectID
 order by result.产品,result.模块id,result.类型,result.禅道编号 
-
 
 
 

@@ -1,44 +1,50 @@
-update zt_task a set name=(select b.id1  from 
-(select '[20200518-20200522]-51支持云徙-华南供销存报表' id1 ,'1504' id union all 
-select '[20200518-20200522]-52[20200511-20200515]-13:预警提醒规则按配置实现--需求' id1 ,'1492' id union all 
-select '[20200518-20200522]-36铁建地产集团计划管理系统证照裂变变更 节点反馈优化' id1 ,'1496' id union all 
-select '[20200518-20200522]-37铁建地产集团计划管理系统证照裂变变更   选择证照参照页 ' id1 ,'1497' id union all 
-select '[20200518-20200522]-38铁建地产集团计划管理系统证照裂变变更  证照录入优化、选择楼栋参照页' id1 ,'1498' id union all 
-select '[20200518-20200522]-39计划节点反馈引用证照附件-开发' id1 ,'1512' id union all 
-select '[20200518-20200522]-40催办之后，需要推送消息给二级单位计划运营负责人-实现' id1 ,'1515' id union all 
-select '[20200518-20200522]-41预警提醒规则按配置实现-开发' id1 ,'1513' id union all 
-select '[20200518-20200522]-42计划考核实现-开发' id1 ,'1509' id union all 
-select '[20200518-20200522]-43主数据在分期上编辑才可以填写用地指标，但是无分期就没有办法编辑-实现' id1 ,'1516' id union all 
-select '[20200518-20200522]-44铁建地产集团计划管理系统证照裂变变更 整体业务测试和BUG修复' id1 ,'1499' id union all 
-select '[20200518-20200522]-45证照裂变测试用例编制' id1 ,'1517' id union all 
-select '[20200518-20200522]-46计划考核实现-测试' id1 ,'1510' id union all 
-select '[20200518-20200522]-47计划节点反馈引用证照附件-设计' id1 ,'1511' id union all 
-select '[20200518-20200522]-48催办之后，需要推送消息给二级单位计划运营负责人-设计' id1 ,'1514' id union all 
-select '[20200518-20200522]-49计划考核实现设计' id1 ,'1507' id union all 
-select '[20200518-20200522]-50计划考核实现-评审' id1 ,'1508' id  )b  where  a.id=b.id)
+update zt_task a set deadline=(select b.id1  from 
+(select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1327' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1492' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1496' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1497' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1498' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1499' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1507' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1508' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1509' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1510' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1511' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1512' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1513' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1514' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1515' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1516' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1517' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1518' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1519' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1520' id   )b  where  a.id=b.id)
 WHERE  a.id  in (select b.id from 
-(select '[20200518-20200522]-51支持云徙-华南供销存报表' id1 ,'1504' id union all 
-select '[20200518-20200522]-52[20200511-20200515]-13:预警提醒规则按配置实现--需求' id1 ,'1492' id union all 
-select '[20200518-20200522]-36铁建地产集团计划管理系统证照裂变变更 节点反馈优化' id1 ,'1496' id union all 
-select '[20200518-20200522]-37铁建地产集团计划管理系统证照裂变变更   选择证照参照页 ' id1 ,'1497' id union all 
-select '[20200518-20200522]-38铁建地产集团计划管理系统证照裂变变更  证照录入优化、选择楼栋参照页' id1 ,'1498' id union all 
-select '[20200518-20200522]-39计划节点反馈引用证照附件-开发' id1 ,'1512' id union all 
-select '[20200518-20200522]-40催办之后，需要推送消息给二级单位计划运营负责人-实现' id1 ,'1515' id union all 
-select '[20200518-20200522]-41预警提醒规则按配置实现-开发' id1 ,'1513' id union all 
-select '[20200518-20200522]-42计划考核实现-开发' id1 ,'1509' id union all 
-select '[20200518-20200522]-43主数据在分期上编辑才可以填写用地指标，但是无分期就没有办法编辑-实现' id1 ,'1516' id union all 
-select '[20200518-20200522]-44铁建地产集团计划管理系统证照裂变变更 整体业务测试和BUG修复' id1 ,'1499' id union all 
-select '[20200518-20200522]-45证照裂变测试用例编制' id1 ,'1517' id union all 
-select '[20200518-20200522]-46计划考核实现-测试' id1 ,'1510' id union all 
-select '[20200518-20200522]-47计划节点反馈引用证照附件-设计' id1 ,'1511' id union all 
-select '[20200518-20200522]-48催办之后，需要推送消息给二级单位计划运营负责人-设计' id1 ,'1514' id union all 
-select '[20200518-20200522]-49计划考核实现设计' id1 ,'1507' id union all 
-select '[20200518-20200522]-50计划考核实现-评审' id1 ,'1508' id  )
+(select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1327' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1492' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1496' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1497' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1498' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1499' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1507' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1508' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1509' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1510' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1511' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1512' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1513' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1514' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1515' id union all 
+select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'1516' id union all 
+select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'1517' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1518' id union all 
+select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'1519' id union all 
+select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'1520' id  )
  b)
 ;
 
 
-
+select deadline from zt_task
 
 
 -- update zt_bug set title = Replace(title,'[20200511-20200515]','')  where title like '[20200511-20200515]%'
