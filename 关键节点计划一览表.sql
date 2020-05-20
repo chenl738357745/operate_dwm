@@ -13,6 +13,8 @@ create or replace PROCEDURE  P_POM_KEY_NODE_SCHEDULE
     v_id varchar2(100);
     --当前日期
     nowdate date:=trunc(sysdate);
+    BIZCODE VARCHAR2(200):='POM.JHJKYKHPH.01';
+    DATA_AUTH_SPID VARCHAR2(200);
 BEGIN
     IF companyGUID IS NULL THEN
         v_id := '003200000000000000000000000000';
@@ -22,8 +24,7 @@ BEGIN
     
     DECLARE
  
-  BIZCODE VARCHAR2(200):='POM.JHJKYKHPH.01';
-  DATA_AUTH_SPID VARCHAR2(200);
+  
 BEGIN
   P_SYS_GET_COMPANY_PROJ_SPID(
     USERID => USERID,
@@ -40,10 +41,12 @@ END;
     open items for   
     WITH
      分期 as(
-     select ps.id,ps.STAGE_NAME,ps.PROJECT_ID,proj.PROJECT_NAME,UNIT_ID,sum(case when STAGE_NAME='无分期' then 1 else 0 end) 无分期个数 
+     select ps.id,ps.STAGE_NAME,ps.PROJECT_ID,proj.PROJECT_NAME,UNIT_ID,to_char(ps.sn,'0.0') as sn
+     ,case when 无分期数量=1 and 总分期数量=1 then 1 else 0 end 是无分期 
      from SYS_PROJECT_STAGE ps
      left join SYS_PROJECT proj on ps.PROJECT_ID=proj.id
-     group by ps.id,ps.STAGE_NAME,ps.PROJECT_ID,proj.PROJECT_NAME,proj.UNIT_ID
+     left join (select PROJECT_ID,sum(case when STAGE_NAME='无分期' then 1 else 0 end) as 无分期数量,count(PROJECT_ID) as 总分期数量 from SYS_PROJECT_STAGE group by PROJECT_ID)  pcount
+     on proj.id=pcount.PROJECT_ID
      )
     ,basedata AS(
     ---查询已审核的分期 关键节点计划 基础信息
@@ -127,15 +130,16 @@ END;
    
    ,项目_分期 as(
    select basedata.PROJ_ID
-   ,case when 分期.无分期个数=1 then 分期.PROJECT_NAME else 分期.PROJECT_NAME||'-'||分期.STAGE_NAME end as name 
+   ,case when 分期.是无分期=1 then 分期.PROJECT_NAME else 分期.PROJECT_NAME||'-'||分期.STAGE_NAME end as name 
     --统计的父级字段处理，无分期项目父级是公司，有分期项目父级是项目
-   ,case when 分期.无分期个数=1 then 分期.UNIT_ID else PROJECT_ID end parent_id
+   ,case when 分期.是无分期=1 then 分期.UNIT_ID else PROJECT_ID end parent_id
    ,有效节点数,应得总分
    ,绿灯,黄灯,红灯
    ,里程碑应完成,里程碑已完成,里程碑未完成
    ,一级应完成,一级已完成,一级未完成
-   ,'/pom/plan-assess/node-monitoring/plan-nodes?companyid='|| 分期.UNIT_ID ||'&ppid='|| case when 分期.无分期个数=1 then PROJECT_ID else 分期.id end ||'&planType=关键节点计划' as url
+   ,'/pom/plan-assess/node-monitoring/plan-nodes?companyid='|| 分期.UNIT_ID ||'&ppid='|| case when 分期.是无分期=1 then PROJECT_ID else 分期.id end ||'&planType=关键节点计划' as url
    ,分期.UNIT_ID
+   ,分期.sn
    from basedata
    left join 分期 on basedata.PROJ_ID=分期.id
    union all 
@@ -148,26 +152,53 @@ END;
    ,0 一级应完成,0 一级已完成,0 一级未完成
    ,'' as url
    ,proj.UNIT_ID
+   ,proj.sn
    from sys_project proj
-   left join (select * from 分期 where 无分期个数=1) s on proj.id=s.project_id
+   left join (select * from 分期 where 是无分期=1) s on proj.id=s.project_id
    where s.id is null
    )
 
    ,拼接项目公司树 as(
-   --select * from (
-   select 
-   id
-   ,ORG_NAME as name
-   ,parent_id
-   ,0 有效节点数,0 应得总分
+   SELECT DISTINCT
+   org_id       AS id,
+   org_name     AS name,
+   parent_id    AS parent_id,
+   0 有效节点数,0 应得总分
    ,0 绿灯,0 黄灯,0 红灯
    ,0 里程碑应完成,0 里程碑已完成,0 里程碑未完成
    ,0 一级应完成,0 一级已完成,0 一级未完成
    ,'' url
-   FROM
-   sys_business_unit where IS_COMPANY=1
-   START WITH id IN (SELECT DISTINCT 项目_分期.UNIT_ID FROM 项目_分期) 
-                            CONNECT BY id=parent_id
+   ,order_code as sn
+                           FROM
+                               tmp_company_tree
+                           WHERE
+                               id = DATA_AUTH_SPID
+                               AND org_id IN (
+                                   SELECT DISTINCT
+                                       id
+                                   FROM
+                                       sys_business_unit
+                                   START WITH
+                                       id IN (
+                                           SELECT
+                                               id
+                                           FROM
+                                               (
+                                                   SELECT
+                                                       unit_id AS id
+                                                   FROM
+                                                       sys_project
+                                                   UNION
+                                                   SELECT
+                                                       subordinate_company_id AS id
+                                                   FROM
+                                                       cdb_feasible_project_config
+                                               ) ds
+                                       )
+                                   CONNECT BY
+                                       PRIOR parent_id = id
+                               )
+                          
    union all
     select PROJ_ID as id
    ,name
@@ -175,7 +206,7 @@ END;
    ,有效节点数,应得总分
    ,绿灯,黄灯,红灯
    ,里程碑应完成,里程碑已完成,里程碑未完成
-   ,一级应完成,一级已完成,一级未完成,url FROM 项目_分期)
+   ,一级应完成,一级已完成,一级未完成,url,sn FROM 项目_分期)
    --start with id=v_id connect by prior id=parent_id
    
 --    
@@ -184,6 +215,7 @@ END;
    ,name
    ,parent_id
    ,url
+   ,sn
   -- ,有效节点数,应得总分
 ,(select sum(有效节点数) from 拼接项目公司树 start with id=s.id connect by prior id=parent_id ) 有效节点数
 ,(select sum(应得总分) from 拼接项目公司树 start with id=s.id connect by prior id=parent_id ) 应得总分
@@ -215,11 +247,11 @@ END;
    ,里程碑已完成+一级已完成 as "completed"
    ,里程碑未完成+一级未完成 as "unfinished"
  
-   ,应得总分 as needResult,0 "dynamicResult",0 "realResult"
-   ,绿灯 as greenLight,黄灯 as "yellowLight",红灯 as  "redLight"
+   ,应得总分 as "needResult",0 "dynamicResult",0 "realResult"
+   ,绿灯 as "greenLight",黄灯 as "yellowLight",红灯 as  "redLight"
    ,里程碑应完成 as "miCompleteNum",里程碑已完成 as "miCompleted",里程碑未完成 as "miUnfinished"
    ,一级应完成 as "olCompleteNum",一级已完成 as "olCompleted",一级未完成 as "olUnfinished"
-  
-   from 汇总 where id<>'a0d1ec37-fa4c-346a-e053-8606160a788a';
+   from 汇总 where id<>'a0d1ec37-fa4c-346a-e053-8606160a788a' and 有效节点数>0 
+   order by sn;
 
 END P_POM_KEY_NODE_SCHEDULE;
