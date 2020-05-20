@@ -21,10 +21,10 @@ BEGIN
     ELSE
         v_id := companyGUID;
     END IF;
-    
+
     DECLARE
- 
-  
+
+
 BEGIN
   P_SYS_GET_COMPANY_PROJ_SPID(
     USERID => USERID,
@@ -41,7 +41,7 @@ END;
     open items for   
     WITH
      分期 as(
-     select ps.id,ps.STAGE_NAME,ps.PROJECT_ID,proj.PROJECT_NAME,UNIT_ID,to_char(ps.sn,'0.0') as sn
+     select  case when 总分期数量=0 then get_uuid else ps.id end as id,ps.STAGE_NAME,ps.PROJECT_ID,proj.PROJECT_NAME,UNIT_ID,to_char(ps.sn,'0.0') as sn
      ,case when 无分期数量=1 and 总分期数量=1 then 1 else 0 end 是无分期 
      from SYS_PROJECT_STAGE ps
      left join SYS_PROJECT proj on ps.PROJECT_ID=proj.id
@@ -56,7 +56,7 @@ END;
    ,count(node.id) as 有效节点数
    ---
    ,sum(case when  node.PLAN_END_DATE<=nowdate then node.STANDARD_SCORE else 0 end) as 应得总分
-  
+
 --    case 
 -- --未到期不亮灯
 -- WHEN    ACTUAL_END_DATE IS NULL AND  TRUNC( SYSDATE )-trunc(PLAN_END_DATE)<=0  THEN ''
@@ -73,9 +73,9 @@ END;
 -- WHEN  ACTUAL_END_DATE IS NULL  and   ((trunc(SYSDATE)-trunc(PLAN_END_DATE)) >5) 
 -- THEN  '<p style=" font-size: 40px;color: red;margin-bottom: 0px;">●</p>' 
 -- ELSE '<p style=" font-size: 40px;color: red;margin-bottom: 0px;">●</p>' END
- 
+
    --绿灯：到期当天内完成反馈；红灯：①到期超过5天未反馈②超期反馈
-   
+
    ,sum( case 
      --未到期不亮灯
      WHEN  node.ACTUAL_END_DATE IS NULL AND  TRUNC(SYSDATE)-trunc(node.PLAN_END_DATE)<=0  THEN 0
@@ -101,7 +101,7 @@ END;
      THEN  1
      ELSE  0 END
      ) as 红灯
-   
+
    -- 里程碑节点、计划完成时间<=当天年月日 如 2020-05-25
    ,sum(case when node.NODE_LEVEL='里程碑' and node.PLAN_END_DATE<=nowdate then 1 else 0 end) as 里程碑应完成
    -- 里程碑节点、实际完成时间不为空
@@ -126,10 +126,10 @@ END;
    and node.IS_DISABLE=0
    and node.IS_DELETE=0
    group by plan.PROJ_ID )
-   
-   
+
+
    ,项目_分期 as(
-   select basedata.PROJ_ID
+   select 分期.id
    ,case when 分期.是无分期=1 then 分期.PROJECT_NAME else 分期.PROJECT_NAME||'-'||分期.STAGE_NAME end as name 
     --统计的父级字段处理，无分期项目父级是公司，有分期项目父级是项目
    ,case when 分期.是无分期=1 then 分期.UNIT_ID else PROJECT_ID end parent_id
@@ -198,9 +198,9 @@ END;
                                    CONNECT BY
                                        PRIOR parent_id = id
                                )
-                          
+
    union all
-    select PROJ_ID as id
+    select id
    ,name
    ,parent_id
    ,有效节点数,应得总分
@@ -208,7 +208,7 @@ END;
    ,里程碑应完成,里程碑已完成,里程碑未完成
    ,一级应完成,一级已完成,一级未完成,url,sn FROM 项目_分期)
    --start with id=v_id connect by prior id=parent_id
-   
+
 --    
    ,汇总 as(select 
    id
@@ -238,20 +238,24 @@ END;
   ,计算 as(select '' from dual)
 
    select  id as "id"
-   ,name as "company"
+   ,case when url is not null then  '<span style="color:#409eff">'||name||'</span>' else   name end as "company"
    ,url as "jumpUrl"
    ,parent_id as "parentId"
-   ,case when (里程碑应完成+一级应完成)=0 then 0 else  round((里程碑已完成+一级已完成)/(里程碑应完成+一级应完成),4)*100 end  as "completionRate"
+   ,case when (里程碑应完成+一级应完成)=0 then 0 else  round((里程碑已完成+一级已完成)/(里程碑应完成+一级应完成),4)*100 end||'%'  as "completionRate"
    ,有效节点数 as "validTasks" 
    ,里程碑应完成+一级应完成 as "completeNum"
    ,里程碑已完成+一级已完成 as "completed"
    ,里程碑未完成+一级未完成 as "unfinished"
- 
+
    ,应得总分 as "needResult",0 "dynamicResult",0 "realResult"
    ,绿灯 as "greenLight",黄灯 as "yellowLight",红灯 as  "redLight"
    ,里程碑应完成 as "miCompleteNum",里程碑已完成 as "miCompleted",里程碑未完成 as "miUnfinished"
    ,一级应完成 as "olCompleteNum",一级已完成 as "olCompleted",一级未完成 as "olUnfinished"
-   from 汇总 where id<>'a0d1ec37-fa4c-346a-e053-8606160a788a' and 有效节点数>0 
-   order by sn;
+   ,'<span style="font-size:14px">预警说明：完成率低于90%</span>' as "remark"
+   from 汇总 where 1=1 and 有效节点数>0 
+
+   start with id=v_id connect by prior id=parent_id
+   order by sn
+   ;
 
 END P_POM_KEY_NODE_SCHEDULE;
