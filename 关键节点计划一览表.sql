@@ -1,20 +1,40 @@
 SET DEFINE OFF;
 
-create or replace PROCEDURE  P_chenl_一览表
+create or replace PROCEDURE  P_POM_KEY_NODE_SCHEDULE
 (
     companyGUID IN VARCHAR2,
+    USERID VARCHAR2,
+    STATIONID VARCHAR2,
+    DEPTID VARCHAR2,
+    COMPANYID VARCHAR2,
     items OUT SYS_REFCURSOR
 )IS
     v_sql clob;
-    v_id clob;
+    v_id varchar2(100);
     --当前日期
     nowdate date:=trunc(sysdate);
 BEGIN
     IF companyGUID IS NULL THEN
-        v_id := '0001';
+        v_id := '003200000000000000000000000000';
     ELSE
         v_id := companyGUID;
     END IF;
+    
+    DECLARE
+ 
+  BIZCODE VARCHAR2(200):='POM.JHJKYKHPH.01';
+  DATA_AUTH_SPID VARCHAR2(200);
+BEGIN
+  P_SYS_GET_COMPANY_PROJ_SPID(
+    USERID => USERID,
+    STATIONID => STATIONID,
+    DEPTID => DEPTID,
+    COMPANYID => COMPANYID,
+    BIZCODE => BIZCODE,
+    DATA_AUTH_SPID => DATA_AUTH_SPID
+  );
+END;
+
     -- 轨道图地址
     --/pom/plan-assess/node-monitoring/plan-nodes?companyid=''|| sp.unit_id ||''&ppid=''|| sp.id ||''&planType=关键节点计划''
     open items for   
@@ -107,7 +127,7 @@ BEGIN
    
    ,项目_分期 as(
    select basedata.PROJ_ID
-   ,case when 分期.无分期个数=1 then 分期.PROJECT_NAME else 分期.STAGE_NAME end as name 
+   ,case when 分期.无分期个数=1 then 分期.PROJECT_NAME else 分期.PROJECT_NAME||'-'||分期.STAGE_NAME end as name 
     --统计的父级字段处理，无分期项目父级是公司，有分期项目父级是项目
    ,case when 分期.无分期个数=1 then 分期.UNIT_ID else PROJECT_ID end parent_id
    ,有效节点数,应得总分
@@ -115,6 +135,7 @@ BEGIN
    ,里程碑应完成,里程碑已完成,里程碑未完成
    ,一级应完成,一级已完成,一级未完成
    ,'/pom/plan-assess/node-monitoring/plan-nodes?companyid='|| 分期.UNIT_ID ||'&ppid='|| case when 分期.无分期个数=1 then PROJECT_ID else 分期.id end ||'&planType=关键节点计划' as url
+   ,分期.UNIT_ID
    from basedata
    left join 分期 on basedata.PROJ_ID=分期.id
    union all 
@@ -126,13 +147,14 @@ BEGIN
    ,0 里程碑应完成,0 里程碑已完成,0 里程碑未完成
    ,0 一级应完成,0 一级已完成,0 一级未完成
    ,'' as url
+   ,proj.UNIT_ID
    from sys_project proj
    left join (select * from 分期 where 无分期个数=1) s on proj.id=s.project_id
    where s.id is null
    )
 
    ,拼接项目公司树 as(
-   select * from (
+   --select * from (
    select 
    id
    ,ORG_NAME as name
@@ -144,9 +166,8 @@ BEGIN
    ,'' url
    FROM
    sys_business_unit where IS_COMPANY=1
-   START WITH id IN (
-                            SELECT DISTINCT 项目_分期.PROJ_ID FROM 项目_分期) 
-                            CONNECT BY parent_id=id 
+   START WITH id IN (SELECT DISTINCT 项目_分期.UNIT_ID FROM 项目_分期) 
+                            CONNECT BY id=parent_id
    union all
     select PROJ_ID as id
    ,name
@@ -154,8 +175,9 @@ BEGIN
    ,有效节点数,应得总分
    ,绿灯,黄灯,红灯
    ,里程碑应完成,里程碑已完成,里程碑未完成
-   ,一级应完成,一级已完成,一级未完成,url FROM 项目_分期)start with id=companyGUID connect by prior id=parent_id
-    )
+   ,一级应完成,一级已完成,一级未完成,url FROM 项目_分期)
+   --start with id=v_id connect by prior id=parent_id
+   
 --    
    ,汇总 as(select 
    id
@@ -183,21 +205,21 @@ BEGIN
 --    
   ,计算 as(select '' from dual)
 
-   select  id
-   ,name as name
-   ,url
-   ,parent_id
-   ,case when (里程碑应完成+一级应完成)=0 then 0 else  round((里程碑已完成+一级已完成)/(里程碑应完成+一级应完成),4)*100 end 完成率
-   ,有效节点数
-   ,里程碑应完成+一级应完成 as 应完成
-   ,里程碑已完成+一级已完成 as 已完成
-   ,里程碑未完成+一级未完成 as 未完成
+   select  id as "id"
+   ,name as "company"
+   ,url as "jumpUrl"
+   ,parent_id as "parentId"
+   ,case when (里程碑应完成+一级应完成)=0 then 0 else  round((里程碑已完成+一级已完成)/(里程碑应完成+一级应完成),4)*100 end  as "completionRate"
+   ,有效节点数 as "validTasks" 
+   ,里程碑应完成+一级应完成 as "completeNum"
+   ,里程碑已完成+一级已完成 as "completed"
+   ,里程碑未完成+一级未完成 as "unfinished"
  
-   ,应得总分,0 实际得分,0 动态得分
-   ,绿灯,黄灯,红灯
-   ,里程碑应完成,里程碑已完成,里程碑未完成
-   ,一级应完成,一级已完成,一级未完成
+   ,应得总分 as needResult,0 "dynamicResult",0 "realResult"
+   ,绿灯 as greenLight,黄灯 as "yellowLight",红灯 as  "redLight"
+   ,里程碑应完成 as "miCompleteNum",里程碑已完成 as "miCompleted",里程碑未完成 as "miUnfinished"
+   ,一级应完成 as "olCompleteNum",一级已完成 as "olCompleted",一级未完成 as "olUnfinished"
   
-   from 汇总  ;
+   from 汇总 where id<>'a0d1ec37-fa4c-346a-e053-8606160a788a';
 
-END P_chenl_一览表;
+END P_POM_KEY_NODE_SCHEDULE;
