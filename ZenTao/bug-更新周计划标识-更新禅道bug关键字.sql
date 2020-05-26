@@ -1,102 +1,160 @@
-update zt_bug a set deadline=(select b.id1  from (select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2091' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2312' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2362' id union all 
-select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'2587' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2730' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2777' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2779' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2783' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2786' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2798' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2799' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2803' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2854' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2855' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2857' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2868' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2876' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2906' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2917' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2922' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2930' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2935' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2937' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2938' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2945' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2947' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2950' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2951' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2953' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2955' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2957' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2959' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2960' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2961' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2962' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2963' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2964' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2965' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2966' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2967' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2968' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2969' id union all 
-select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'2970' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2971' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2974' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2975' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2976' id  ) b  where  a.id=b.id)
-WHERE  a.id  in (select b.id from (select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2091' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2312' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2362' id union all 
-select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'2587' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2730' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2777' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2779' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2783' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2786' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2798' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2799' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2803' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2854' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2855' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2857' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2868' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2876' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2906' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2917' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2922' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2930' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2935' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2937' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2938' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2945' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2947' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2950' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2951' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2953' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2955' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2957' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2959' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2960' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2961' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2962' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2963' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2964' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2965' id union all 
-select str_to_date('2020/5/21', '%Y/%m/%d %H') id1 ,'2966' id union all 
-select str_to_date('2020/5/19', '%Y/%m/%d %H') id1 ,'2967' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2968' id union all 
-select str_to_date('2020/5/20', '%Y/%m/%d %H') id1 ,'2969' id union all 
-select str_to_date('2020/5/22', '%Y/%m/%d %H') id1 ,'2970' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2971' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2974' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2975' id union all 
-select str_to_date('2020/5/18', '%Y/%m/%d %H') id1 ,'2976' id 
+update zt_bug a set keywords=(select b.id1  from (select '[20200525-20200529][20200518-20200522]-9[20200511-20200515]-33' id1 ,'2091' id union all
+select '[20200525-20200529]' id1 ,'3045' id union all
+select '[20200525-20200529]' id1 ,'3040' id union all
+select '[20200525-20200529]' id1 ,'3071' id union all
+select '[20200525-20200529]' id1 ,'3073' id union all
+select '[20200525-20200529]' id1 ,'3076' id union all
+select '[20200525-20200529]' id1 ,'3077' id union all
+select '[20200525-20200529]' id1 ,'3081' id union all
+select '[20200525-20200529]' id1 ,'3060' id union all
+select '[20200525-20200529]' id1 ,'3061' id union all
+select '[20200525-20200529]' id1 ,'3062' id union all
+select '[20200525-20200529]' id1 ,'3042' id union all
+select '[20200525-20200529]' id1 ,'3055' id union all
+select '[20200525-20200529]' id1 ,'3056' id union all
+select '[20200525-20200529]' id1 ,'3057' id union all
+select '[20200525-20200529]' id1 ,'3039' id union all
+select '[20200525-20200529]' id1 ,'3046' id union all
+select '[20200525-20200529]' id1 ,'3048' id union all
+select '[20200525-20200529]' id1 ,'3065' id union all
+select '[20200525-20200529]' id1 ,'3067' id union all
+select '[20200525-20200529]' id1 ,'3083' id union all
+select '[20200525-20200529]' id1 ,'3084' id union all
+select '[20200525-20200529]' id1 ,'3054' id union all
+select '[20200525-20200529]' id1 ,'3069' id union all
+select '[20200525-20200529]' id1 ,'3080' id union all
+select '[20200525-20200529][20200518-20200522]-8' id1 ,'2855' id union all
+select '[20200525-20200529]' id1 ,'3043' id union all
+select '[20200525-20200529]' id1 ,'3074' id union all
+select '[20200525-20200529]' id1 ,'2992' id union all
+select '[20200525-20200529][20200518-20200522]-19' id1 ,'2786' id union all
+select '[20200525-20200529]' id1 ,'3058' id union all
+select '[20200525-20200529]' id1 ,'3082' id union all
+select '[20200525-20200529]' id1 ,'3036' id union all
+select '[20200525-20200529]' id1 ,'3049' id union all
+select '[20200525-20200529]' id1 ,'3050' id union all
+select '[20200525-20200529]' id1 ,'3064' id union all
+select '[20200525-20200529][20200518-20200522]-26' id1 ,'2362' id union all
+select '[20200525-20200529][20200518-20200522]-28' id1 ,'2783' id union all
+select '[20200525-20200529]' id1 ,'3066' id union all
+select '[20200525-20200529]' id1 ,'3078' id union all
+select '[20200525-20200529][20200518-20200522]-33' id1 ,'2937' id union all
+select '[20200525-20200529]' id1 ,'3068' id union all
+select '[20200525-20200529][20200518-20200522]-4' id1 ,'2922' id union all
+select '[20200525-20200529][20200518-20200522]-7' id1 ,'2854' id union all
+select '[20200525-20200529]' id1 ,'3014' id union all
+select '[20200525-20200529]' id1 ,'3019' id union all
+select '[20200525-20200529]' id1 ,'3020' id union all
+select '[20200525-20200529]' id1 ,'3024' id union all
+select '[20200525-20200529]' id1 ,'3025' id union all
+select '[20200525-20200529]' id1 ,'2983' id union all
+select '[20200525-20200529]' id1 ,'2985' id union all
+select '[20200525-20200529]' id1 ,'2988' id union all
+select '[20200525-20200529]' id1 ,'2989' id union all
+select '[20200525-20200529]' id1 ,'2990' id union all
+select '[20200525-20200529]' id1 ,'2994' id union all
+select '[20200525-20200529]' id1 ,'2997' id union all
+select '[20200525-20200529]' id1 ,'2998' id union all
+select '[20200525-20200529]' id1 ,'3004' id union all
+select '[20200525-20200529]' id1 ,'3041' id union all
+select '[20200525-20200529]' id1 ,'3059' id union all
+select '[20200525-20200529]' id1 ,'3013' id union all
+select '[20200525-20200529]' id1 ,'3012' id union all
+select '[20200525-20200529]' id1 ,'3021' id union all
+select '[20200525-20200529]' id1 ,'3026' id union all
+select '[20200525-20200529]' id1 ,'3007' id union all
+select '[20200525-20200529]' id1 ,'3017' id union all
+select '[20200525-20200529]' id1 ,'3032' id union all
+select '[20200525-20200529]' id1 ,'3034' id union all
+select '[20200525-20200529]' id1 ,'3037' id union all
+select '[20200525-20200529][20200518-20200522]-27' id1 ,'2777' id union all
+select '[20200525-20200529]' id1 ,'3027' id union all
+select '[20200525-20200529]' id1 ,'3028' id union all
+select '[20200525-20200529][20200518-20200522]-29' id1 ,'2930' id union all
+select '[20200525-20200529]' id1 ,'2977' id union all
+select '[20200525-20200529]' id1 ,'3047' id union all
+select '[20200525-20200529]' id1 ,'3053' id ) b  where  a.id=b.id)
+WHERE  a.id  in (select b.id from (select '[20200525-20200529][20200518-20200522]-9[20200511-20200515]-33' id1 ,'2091' id union all
+select '[20200525-20200529]' id1 ,'3045' id union all
+select '[20200525-20200529]' id1 ,'3040' id union all
+select '[20200525-20200529]' id1 ,'3071' id union all
+select '[20200525-20200529]' id1 ,'3073' id union all
+select '[20200525-20200529]' id1 ,'3076' id union all
+select '[20200525-20200529]' id1 ,'3077' id union all
+select '[20200525-20200529]' id1 ,'3081' id union all
+select '[20200525-20200529]' id1 ,'3060' id union all
+select '[20200525-20200529]' id1 ,'3061' id union all
+select '[20200525-20200529]' id1 ,'3062' id union all
+select '[20200525-20200529]' id1 ,'3042' id union all
+select '[20200525-20200529]' id1 ,'3055' id union all
+select '[20200525-20200529]' id1 ,'3056' id union all
+select '[20200525-20200529]' id1 ,'3057' id union all
+select '[20200525-20200529]' id1 ,'3039' id union all
+select '[20200525-20200529]' id1 ,'3046' id union all
+select '[20200525-20200529]' id1 ,'3048' id union all
+select '[20200525-20200529]' id1 ,'3065' id union all
+select '[20200525-20200529]' id1 ,'3067' id union all
+select '[20200525-20200529]' id1 ,'3083' id union all
+select '[20200525-20200529]' id1 ,'3084' id union all
+select '[20200525-20200529]' id1 ,'3054' id union all
+select '[20200525-20200529]' id1 ,'3069' id union all
+select '[20200525-20200529]' id1 ,'3080' id union all
+select '[20200525-20200529][20200518-20200522]-8' id1 ,'2855' id union all
+select '[20200525-20200529]' id1 ,'3043' id union all
+select '[20200525-20200529]' id1 ,'3074' id union all
+select '[20200525-20200529]' id1 ,'2992' id union all
+select '[20200525-20200529][20200518-20200522]-19' id1 ,'2786' id union all
+select '[20200525-20200529]' id1 ,'3058' id union all
+select '[20200525-20200529]' id1 ,'3082' id union all
+select '[20200525-20200529]' id1 ,'3036' id union all
+select '[20200525-20200529]' id1 ,'3049' id union all
+select '[20200525-20200529]' id1 ,'3050' id union all
+select '[20200525-20200529]' id1 ,'3064' id union all
+select '[20200525-20200529][20200518-20200522]-26' id1 ,'2362' id union all
+select '[20200525-20200529][20200518-20200522]-28' id1 ,'2783' id union all
+select '[20200525-20200529]' id1 ,'3066' id union all
+select '[20200525-20200529]' id1 ,'3078' id union all
+select '[20200525-20200529][20200518-20200522]-33' id1 ,'2937' id union all
+select '[20200525-20200529]' id1 ,'3068' id union all
+select '[20200525-20200529][20200518-20200522]-4' id1 ,'2922' id union all
+select '[20200525-20200529][20200518-20200522]-7' id1 ,'2854' id union all
+select '[20200525-20200529]' id1 ,'3014' id union all
+select '[20200525-20200529]' id1 ,'3019' id union all
+select '[20200525-20200529]' id1 ,'3020' id union all
+select '[20200525-20200529]' id1 ,'3024' id union all
+select '[20200525-20200529]' id1 ,'3025' id union all
+select '[20200525-20200529]' id1 ,'2983' id union all
+select '[20200525-20200529]' id1 ,'2985' id union all
+select '[20200525-20200529]' id1 ,'2988' id union all
+select '[20200525-20200529]' id1 ,'2989' id union all
+select '[20200525-20200529]' id1 ,'2990' id union all
+select '[20200525-20200529]' id1 ,'2994' id union all
+select '[20200525-20200529]' id1 ,'2997' id union all
+select '[20200525-20200529]' id1 ,'2998' id union all
+select '[20200525-20200529]' id1 ,'3004' id union all
+select '[20200525-20200529]' id1 ,'3041' id union all
+select '[20200525-20200529]' id1 ,'3059' id union all
+select '[20200525-20200529]' id1 ,'3013' id union all
+select '[20200525-20200529]' id1 ,'3012' id union all
+select '[20200525-20200529]' id1 ,'3021' id union all
+select '[20200525-20200529]' id1 ,'3026' id union all
+select '[20200525-20200529]' id1 ,'3007' id union all
+select '[20200525-20200529]' id1 ,'3017' id union all
+select '[20200525-20200529]' id1 ,'3032' id union all
+select '[20200525-20200529]' id1 ,'3034' id union all
+select '[20200525-20200529]' id1 ,'3037' id union all
+select '[20200525-20200529][20200518-20200522]-27' id1 ,'2777' id union all
+select '[20200525-20200529]' id1 ,'3027' id union all
+select '[20200525-20200529]' id1 ,'3028' id union all
+select '[20200525-20200529][20200518-20200522]-29' id1 ,'2930' id union all
+select '[20200525-20200529]' id1 ,'2977' id union all
+select '[20200525-20200529]' id1 ,'3047' id union all
+select '[20200525-20200529]' id1 ,'3053' id
  ) b)
 ;
 
 
-select * from zt_bug where id=2974
+
 
 
 -- update zt_bug set title = Replace(title,'[20200511-20200515]','')  where title like '[20200511-20200515]%'
