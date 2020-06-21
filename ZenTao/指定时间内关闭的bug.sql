@@ -1,17 +1,16 @@
 -- ------------------------ 未完成的任务和bug
-set @rownum=0;
-SELECT 
--- CONCAT('[20200518-20200522]-',@rownum:=@rownum+1,'',外部唯一标识（关键字）) as rownum,
-外部唯一标识（关键字）
+SELECT result.禅道编号
+-- ,外部唯一标识（关键字）
+-- ,CONCAT('[20200525-20200529]',外部唯一标识（关键字）)
 ,类型
-,result.禅道编号
 ,优先级
-,CONCAT('【',产品,'】','-【',IFNULL(模块名,''),'】-',任务名称) as 任务名称全路径
+,产品
+,模块名
+-- ,CONCAT('【',产品,'】','-【',IFNULL(模块名,''),'】-',任务名称) as 任务名称
 ,任务名称
 ,资源名称
 ,剩余工时
-,产品
-,模块名
+
 , case when  状态='done' then '已完成'
 when  状态='closed' then  '关闭'
 when 状态='wait' then '未开始'
@@ -56,7 +55,7 @@ LEFT JOIN zt_user ON zt_task.assignedTo=zt_user.account
 LEFT JOIN zt_user finishedByu ON zt_task.finishedBy=finishedByu.account
 left join zt_module on zt_task.module=zt_module.id
 -- - --------------------------------------------------------------------------------------------------
-WHERE 1=1 
+WHERE 1=2
 and zt_task.STATUS IN ('wait','doing') 
 AND zt_task.deleted='0' AND zt_project.NAME IN ('计划移动端','计划运营管理')
 -- - --------------------------------------------------------------------------------------------------
@@ -64,12 +63,10 @@ AND zt_task.deleted='0' AND zt_project.NAME IN ('计划移动端','计划运营�
 -- -----------------------任务过程
 LEFT JOIN (
 	SELECT objectID,GROUP_CONCAT(CONCAT(zt_action.extra,":",zt_action.`comment`) SEPARATOR '；') as "过程备注" FROM zt_action
-	where zt_action.`comment`<>'' and zt_action.`comment` is not null
-	group by objectID ) AS action ON result.禅道编号=action.objectID 
-	-- 测试需要
-where	result.禅道编号<>1327
-order by result.类型,result.产品,result.模块id,result.禅道编号
-
+	where zt_action.`comment`<>'' and zt_action.`comment` is not null 
+	group by objectID ) AS action ON result.禅道编号=action.objectID
+	-- where   result.任务名称 like '%集团测试%'
+	order by result.产品,result.模块id,result.优先级,result.类型,result.禅道编号
 
 
 
