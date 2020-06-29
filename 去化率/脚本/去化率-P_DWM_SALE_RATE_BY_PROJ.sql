@@ -1,6 +1,7 @@
 create or replace PROCEDURE "P_DWM_SALE_RATE_BY_PROJ" (
     IS_PHOTOGRAPH in number:=0,
     proj_SPID  out NVARCHAR2
+--    ,SALE_RATE_BY_PROJECT out SYS_REFCURSOR
     
 ) AS
 		--项目颗粒度去化率拍照；作用=》定时拍照
@@ -150,30 +151,73 @@ from
 ---------->房间“合同成交总价”
 ---------->"项目开盘"的实际完成日期 <合同签约日期<"项目开盘"的实际完成日期 +30天
 ---------->房间“销售状态”=签约
-sum(case when room.SALE_STATE='签约' and proj.first_open_date<build.GET_PRE_SALE_PERMIT_DATE and build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date +30 then room.TRADE_TOTAL else 0 end ) as "首开去化货值"
+sum(case when room.SALE_STATE='签约' 
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+--and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30 then room.TRADE_TOTAL else 0 end ) as "首开去化货值"
 ------首次开盘已取证货值（首开推售货值）：
 ---------->房间“面价标准总价”:在计算“货值去化率”时，对已签约房间（有可能出现优惠打折），分子分母均按“签约金额”计算“货值去化率”。
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when room.SALE_STATE='签约' and build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.TRADE_TOTAL 
-when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.BZ_TOTAL else 0 end )  as "首开推售货值"
+,sum(case when room.SALE_STATE='签约'
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+--and build.GET_PRE_SALE_PERMIT_DATE<=proj.first_open_date 
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30
+then room.TRADE_TOTAL 
+when build.GET_PRE_SALE_PERMIT_DATE<=proj.first_open_date
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+then room.BZ_TOTAL else 0 end )  as "首开推售货值"
 ------首次开盘30天内的签约面积（首开去化面积）:
 ---------->房间“最新建筑面积”
 ---------->"项目开盘"的实际完成日期 <合同签约日期<"项目开盘"的实际完成日期 +30天
 ---------->房间“销售状态”=签约  
-,sum(case when room.SALE_STATE='签约' and proj.first_open_date<build.GET_PRE_SALE_PERMIT_DATE and build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date +30  then room.NEW_BLD_AREA else 0 end ) as "首开去化面积"
+,sum(case when room.SALE_STATE='签约' 
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+--and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE 
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30  then room.NEW_BLD_AREA else 0 end ) as "首开去化面积"
 ------首次开盘的已取证面积（首开推售面积）:
 ---------->房间“最新建筑面积”
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then room.NEW_BLD_AREA  else 0 end )  as "首开推售面积"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE<=proj.first_open_date 
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null then room.NEW_BLD_AREA 
+when room.SALE_STATE='签约' 
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+--and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE 
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30  then room.NEW_BLD_AREA 
+else 0 end )  as "首开推售面积"
 ------首次开盘30天内的签约套数（首开去化套数）:
 ---------->房间“汇总”
 ---------->"项目开盘"的实际完成日期 <合同签约日期<"项目开盘"的实际完成日期 +30天
 ---------->房间“销售状态”=签约  
-,sum(case when room.SALE_STATE='签约' and proj.first_open_date<build.GET_PRE_SALE_PERMIT_DATE and build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date +30 then 1 else 0 end ) as "首开去化套数"
+--,sum(case when room.SALE_STATE='签约' and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE           and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30 then 1 else 0 end ) as "首开去化套数"
+,sum(case when room.SALE_STATE='签约' 
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+          --and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE 
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30 then 1 else 0 end ) as "首开去化套数"
 ------首次开盘的已取证套数（首开推售套数）:
 ---------->房间“汇总”
 ---------->房间所属“楼栋预售许可证获取日期”<"项目开盘"的实际完成日期 
-,sum(case when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then 1 else 0 end )  as "首开推售套数"
+--原来统计逻辑
+--,sum(case when build.GET_PRE_SALE_PERMIT_DATE<proj.first_open_date then 1 else 0 end )  as "首开推售套数"
+,sum(case when build.GET_PRE_SALE_PERMIT_DATE<=proj.first_open_date
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+then 1 
+when room.SALE_STATE='签约'
+-- 首开分期房间
+and FIRST_OPEN_PERIOD.id is not null
+--and proj.first_open_date<=build.GET_PRE_SALE_PERMIT_DATE 
+and room.TRADE_CONTRACT_DATE<=proj.first_open_date +30 then 1
+else 0 end )  as "首开推售套数"
+
+
+
 
 ------全案------全案------全案------全案------全案------全案------全案 
 ------全案（已去化货值）: 
@@ -250,6 +294,9 @@ proj.is_construction_began
 from tmp_proj_base proj left join  MDM_ROOM room  
 on proj.project_id=room.project_id  and  proj.id = PROJ_BASE_SPID
 left join  mdm_build build on room.BUILDING_ID=build.id 
+-- chenl 20200613 只取首开楼栋
+left join  SYS_PROJECT_STAGE FIRST_OPEN_PERIOD on build.PERIOD_ID=FIRST_OPEN_PERIOD.id  
+AND FIRST_OPEN_PERIOD.IS_FIRST_OPEN_PERIOD=1
 group by proj.project_id
     ,proj.project_name,
     proj.org_id,
@@ -496,6 +543,12 @@ PROJECT_ID      ID---【1】主键
 ,dwm_REMARK---【52】备注信息
             FROM
                 TMP_SALE_RATE_BY_PROJECT where id=spid;
+                
+
 commit;
     END IF;
+    
+--    open SALE_RATE_BY_PROJECT for
+--select * FROM
+--                TMP_SALE_RATE_BY_PROJECT where id=spid;
 END P_DWM_SALE_RATE_BY_PROJ;
