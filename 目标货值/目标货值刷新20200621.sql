@@ -1,72 +1,11 @@
-----------------------------------------------chenl20200621开始------修改目标货值详情表主键长度
-DECLARE COLUMNEXIST  NUMBER;
-BEGIN
-SELECT COUNT(*) INTO COLUMNEXIST  from user_tab_columns t where t.table_name='DWM_TARGET_WORTH_DTL' and t.column_name ='WORTH_DTL_ID';
-    IF COLUMNEXIST=0 THEN
-        EXECUTE IMMEDIATE 'alter table DWM_TARGET_WORTH_DTL add  WORTH_DTL_ID varchar2(80)';
-        EXECUTE IMMEDIATE 'COMMENT ON COLUMN "DWM_TARGET_WORTH_DTL"."WORTH_DTL_ID" IS ''目标货值详情对象id''';
-    END IF;
-end;
-/
-DECLARE COLUMNEXIST  NUMBER;
-BEGIN
-SELECT COUNT(*) INTO COLUMNEXIST  from user_tab_columns t where t.table_name='DWM_TARGET_WORTH_DTL' and t.column_name ='WORTH_DTL_PARENT_ID';
-    IF COLUMNEXIST=0 THEN
-        EXECUTE IMMEDIATE 'alter table DWM_TARGET_WORTH_DTL add  WORTH_DTL_PARENT_ID varchar2(80)';
-        EXECUTE IMMEDIATE 'COMMENT ON COLUMN "DWM_TARGET_WORTH_DTL"."WORTH_DTL_PARENT_ID" IS ''目标货值详情对象父级id''';
-    END IF;
-end;
-/
-COMMENT ON COLUMN "DWM_TARGET_WORTH_DTL"."OBJ_PARENT_ID" IS 'chenl20200621废弃字段,对象父级id';
-COMMENT ON COLUMN "DWM_TARGET_WORTH_DTL"."OLD_OBJ_ID" IS 'chenl20200621废弃字段,旧的对象id';
 
-----------------------------------------------chenl20200621结束------修改目标货值详情表主键长度
----------备份目标货值表
-----drop table DWM_TARGET_WORTH_DTL_CL;
-----create table DWM_TARGET_WORTH_DTL_cl  as select * from DWM_TARGET_WORTH_DTL;
----------更新目标货值表历史数据
---项目,分期,楼栋WORTH_DTL_ID=对象id+目标货值主表id
---业态         WORTH_DTL_ID=id
---项目,分期,楼栋,业态WORTH_DTL_PARENT_ID=OBJ_PARENT_ID+目标货值主表id
-update DWM_TARGET_WORTH_DTL set WORTH_DTL_ID=case when OBJ_TYPE=40 then id else obj_id||TARGET_WORTH_ID end where WORTH_DTL_ID is null;
-update DWM_TARGET_WORTH_DTL set WORTH_DTL_PARENT_ID=OBJ_PARENT_ID||TARGET_WORTH_ID where WORTH_DTL_PARENT_ID is null;
---/
---------目标货值详情，查询视图
-
-----------------------------------------------更新重新计算存储过程
-create or replace PROCEDURE P_DWM_TARGET_WORTH_DTL_M (
-    targetWorthId         IN             VARCHAR2 --目标货值id
-) AS
---修正目标货值错误数据存储修正。之前数据逻辑存储错误，保存时修改正。临时处理。
---作者：陈丽
---日期：2020/05/09
-BEGIN
-RETURN;
-
-with 计算 as(select (case when obj_type=40 then average_price else 0 end) as average_price_temp,
-    (case when obj_type=40 then nvl(average_price*(TOTAL_CARPORT+GROUND_CAN_SELL_AREA),0) else 0 end) as worth_temp,
-    id,target_worth_id,
-    worth_dtl_id,
-    worth_dtl_parent_id from DWM_TARGET_WORTH_DTL)
-
- , 汇总 as( select s.*
- ,(SELECT SUM(worth_temp) FROM 计算 START WITH ID=S.ID CONNECT BY PRIOR ID=obj_parent_id ) AS  worth_yuan
- from 计算 s)
-
-SELECT 汇总.*
-,CASE WHEN (TOTAL_CARPORT+GROUND_CAN_SELL_AREA)=0 THEN 0 ELSE worth_yuan/(TOTAL_CARPORT+GROUND_CAN_SELL_AREA) END AS average_price
-,WORTH_yuan/10000 AS "worth"
-FROM 汇总;
-
-END P_DWM_TARGET_WORTH_DTL_M;
-/
 ----------------------------------------------chenl20200621开始------从主数据刷新目标货值存储过程（只是获取，未到数据库）
 create or replace PROCEDURE P_DWM_TARGET_WORTH_REF (
-   USERID   IN   VARCHAR2,
+    USERID   IN   VARCHAR2,
     STATIONID    IN  VARCHAR2,
     DEPTID   IN   VARCHAR2,
     COMPANYID IN VARCHAR2,
-    i_projectId    IN               VARCHAR2,
+    i_projectId    IN               VARCHAR2,---项目id
     i_target_worth_phase    IN               VARCHAR2:=0 ---货值阶段（0：可研版目标货值，10：全盘开发计划版目标货值，20：动态版目标货值）
     ,o_target_worth out  SYS_REFCURSOR
 ) AS
@@ -115,7 +54,9 @@ select * from (select obj_phase.*,row_number() over(partition by obj_id order by
 -------------------------------------------=======最新已审核目标货值--用于新增引入上一个已审核单价
 latest_target_worth as
 (select * from (select latest_tw.*,row_number() over(partition by OBJ_ID,obj_parent_id order by target_worth_phase,worth_v desc) as order_num from 
-(select dtl.OBJ_ID,dtl.AVERAGE_PRICE,dtl.obj_parent_id,worth_v,target_worth_phase,dtl.obj_name from DWM_TARGET_WORTH_DTL dtl
+(select dtl.OBJ_ID,dtl.AVERAGE_PRICE,dtl.obj_parent_id,worth_v,target_worth_phase,dtl.obj_name 
+,dtl.WORTH_DTL_PARENT_ID,dtl.WORTH_DTL_ID
+from DWM_TARGET_WORTH_DTL dtl
 left join DWM_TARGET_WORTH  w on dtl.TARGET_WORTH_ID=w.id
 left join DWM_TARGET_WORTH_DTL parentdtl on dtl.obj_parent_id=parentdtl.obj_id
 --已审核并且等于业态的
@@ -147,7 +88,7 @@ select  obj_base.obj_id||l_UUID as id,
         when ph.objtype='楼栋' then 30 end as
         OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋;40业态）';
         pIndex.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        obj_base.parent_id||l_UUID as OBJ_PARENT_ID,''  as OBJ_PARENT_OBJ_ID,
+        obj_base.parent_id||l_UUID as WORTH_DTL_PARENT_ID,obj_base.obj_id  as OBJ_PARENT_ID,
         '' as PRODUCT_TYPE_ID
 from obj_base obj_base
 --所有阶段
@@ -181,8 +122,8 @@ where  ph.phase_name='可研版' and obj_base.objtype='项目'
         l_UUID as TARGET_WORTH_ID,--'货值主键';
         0 OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋40业态）';
         可研版本对象.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        可研版本对象.id as OBJ_PARENT_ID,
-        可研版本对象.OBJ_ID as OBJ_PARENT_OBJ_ID,
+        可研版本对象.id as WORTH_DTL_PARENT_ID,
+        可研版本对象.OBJ_ID as OBJ_PARENT_ID,
         pIndex.PRODUCT_TYPE_ID
 --业态指标
 from MDM_OBJ_PHASE_PT_INDEX pIndex 
@@ -221,7 +162,7 @@ select  obj_base.obj_id||l_UUID as id,
         when  ph.objtype='楼栋' then 30 end as
         OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋;40业态）';
         pIndex.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        obj_base.parent_id||l_UUID as OBJ_PARENT_ID ,'' as OBJ_PARENT_OBJ_ID,
+        obj_base.parent_id||l_UUID as WORTH_DTL_PARENT_ID ,obj_base.obj_id as OBJ_PARENT_ID,
        '' as PRODUCT_TYPE_ID
 from obj_base obj_base
 --所有阶段
@@ -254,8 +195,8 @@ where  ph.phase_name='全盘计划版' and (ph.objtype='项目' or ph.objtype='分期' ) 
         l_UUID as TARGET_WORTH_ID,--'货值主键';
         40 OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋40业态）';
         全盘版本对象.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        全盘版本对象.id as OBJ_PARENT_ID ,
-        全盘版本对象.OBJ_ID as OBJ_PARENT_OBJ_ID,
+        全盘版本对象.id as WORTH_DTL_PARENT_ID ,
+        全盘版本对象.OBJ_ID as OBJ_PARENT_ID,
         pIndex.PRODUCT_TYPE_ID
         
 from  MDM_OBJ_PHASE_PT_INDEX pIndex 
@@ -291,8 +232,8 @@ select  obj_base.obj_id||l_UUID as id,
         when  newph.objtype='楼栋' then 30 end as
         OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋;40业态）';
         pIndex.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        obj_base.parent_id||l_UUID as OBJ_PARENT_ID ,
-        '' as OBJ_PARENT_OBJ_ID,
+        obj_base.parent_id||l_UUID as WORTH_DTL_PARENT_ID ,
+        obj_base.obj_id as OBJ_PARENT_ID,
        '' as PRODUCT_TYPE_ID
 from obj_base obj_base
 --最新阶段
@@ -323,8 +264,8 @@ left join MDM_OBJ_PHASE_INDEX pIndex on newph.instance_id =pIndex.OBJ_PHASE_ID)
         l_UUID as TARGET_WORTH_ID,--'货值主键';
         40 OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋40业态）';
         动态版本对象.OBJ_PHASE_ID as OBJ_PHASE_ID,
-        动态版本对象.id as OBJ_PARENT_ID, 
-        动态版本对象.OBJ_ID as OBJ_PARENT_OBJ_ID,
+        动态版本对象.id as WORTH_DTL_PARENT_ID, 
+        动态版本对象.OBJ_ID as OBJ_PARENT_ID,
         pIndex.PRODUCT_TYPE_ID
         from MDM_OBJ_PHASE_PT_INDEX pIndex
         left join 动态版本对象 动态版本对象  on pIndex.OBJ_PHASE_ID=动态版本对象.OBJ_PHASE_ID
@@ -348,27 +289,47 @@ from (
         select * from 动态版本对象 where 1=case when i_target_worth_phase=20 then 1 else 0 end
         union all
         select * from 动态版本业态 where 1=case when i_target_worth_phase=20 then 1 else 0 end
-        ) pv left join latest_target_worth lw on pv.OBJ_ID=lw.OBJ_ID and pv.OBJ_PARENT_OBJ_ID=lw.obj_parent_id)
-
- , 汇总 as( select s.*,(select sum(WORTH_temp) from 计算 start with id=s.id connect by prior id=obj_parent_id ) as  WORTH_yuan
+        ) pv left join latest_target_worth lw 
+        on pv.OBJ_ID=lw.OBJ_ID and pv.obj_parent_id=lw.obj_parent_id)
+--------------汇总货值
+ , 汇总 as( select s.*,(select sum(WORTH_temp) from 计算 start with id=s.id connect by prior id=WORTH_DTL_PARENT_ID) as  WORTH_yuan
  from 计算 s)
 
-SELECT 汇总.id AS "id",汇总.OBJ_PHASE_ID AS "objPhaseId",汇总.TOTAL_BUILD_AREA AS "totalBuildArea",汇总.TARGET_WORTH_ID AS "targetWorthId",汇总.OBJ_PARENT_OBJ_ID AS "objParentObjId",汇总.OPERATE_ATTRIBUTE_NAME AS "operateAttributeName",汇总.PHASE_NAME AS "phaseName",汇总.OBJ_NAME AS "objName",汇总.OBJ_ID AS "objId",汇总.GROUND_CAN_SELL_AREA AS "groundCanSellArea",汇总.GROUND_CARPORT AS "groundCarport",汇总.OPERATE_ATTRIBUTE_ID AS "operateAttributeId",汇总.UNDERGROUND_CARPORT AS "undergroundCarport"
-,汇总.OBJ_TYPE AS "objType"
-,汇总.TOTAL_CARPORT AS "totalCarport"
-,汇总.TOTAL_SALES_AREA AS "totalSalesArea"
-,汇总.UNDERGROUND_CAN_SELL_AREA AS "undergroundCanSellArea"
+,结果 as ( SELECT  GET_UUID() AS "id"
+,汇总.TARGET_WORTH_ID AS "targetWorthId"
+,汇总.PHASE_NAME AS "phaseName"
 ,汇总.类型 AS "类型"
-,汇总.OBJ_PARENT_ID AS "parentId"
-,CASE WHEN (TOTAL_CARPORT+GROUND_CAN_SELL_AREA)=0 THEN 0 ELSE WORTH_yuan/(TOTAL_CARPORT+GROUND_CAN_SELL_AREA) END AS "averagePrice"
-,WORTH_yuan/10000 AS "worth"
-,pt.is_carport as "isCarport"
+,汇总.id as "worthDtlId"---【WORTH_DTL_ID】树id
+,汇总.WORTH_DTL_PARENT_ID AS "worthDtlParentId"----【WORTH_DTL_PARENT_ID】 树父级id
+,汇总.OBJ_PHASE_ID AS "objPhaseId"----"DWM_TARGET_WORTH_DTL"."OBJ_PHASE_ID" IS '对象阶段id';
+,汇总.TOTAL_BUILD_AREA AS "totalBuildArea"----"DWM_TARGET_WORTH_DTL"."TOTAL_BUILD_AREA" IS '总建筑面积';
+,汇总.TOTAL_VOLUME_AREA AS "totalVolumeArea"----"DWM_TARGET_WORTH_DTL"."TOTAL_VOLUME_AREA" IS '总计容面积';
+,汇总.OBJ_PARENT_ID AS "objParentId"--"DWM_TARGET_WORTH_DTL"."OBJ_PARENT_ID" IS '对象父级id';
+,汇总.OPERATE_ATTRIBUTE_NAME AS "operateAttributeName"---"DWM_TARGET_WORTH_DTL"."OPERATE_ATTRIBUTE_NAME" IS '经营属性名称';
+,汇总.OBJ_NAME AS "objName"----"DWM_TARGET_WORTH_DTL"."OBJ_NAME" IS '对象名称（项目名称、分期名称、业态名称）';
+,汇总.OBJ_ID AS "objId"----"DWM_TARGET_WORTH_DTL"."OBJ_ID" IS '对象id';
+,汇总.GROUND_CAN_SELL_AREA AS "groundCanSellArea"--"DWM_TARGET_WORTH_DTL"."GROUND_CAN_SELL_AREA" IS '地上可售面积';
+,汇总.GROUND_CARPORT AS "groundCarport"---"DWM_TARGET_WORTH_DTL"."GROUND_CARPORT" IS '地上车位数';
+,汇总.OPERATE_ATTRIBUTE_ID AS "operateAttributeId"---."DWM_TARGET_WORTH_DTL"."OPERATE_ATTRIBUTE_ID" IS '经营属性Id';
+,汇总.UNDERGROUND_CARPORT AS "undergroundCarport"---"DWM_TARGET_WORTH_DTL"."UNDERGROUND_CARPORT" IS '地下车位数';
+,汇总.OBJ_TYPE AS "objType"---."DWM_TARGET_WORTH_DTL"."OBJ_TYPE" IS '对象类型（0：项目；20：分期；30：楼栋40业态）';
+,汇总.TOTAL_CARPORT AS "totalCarport"---"DWM_TARGET_WORTH_DTL"."TOTAL_CARPORT" IS '总车位数';
+,汇总.TOTAL_SALES_AREA AS "totalSalesArea"----."DWM_TARGET_WORTH_DTL"."TOTAL_SALES_AREA" IS '总可售面积';
+,汇总.UNDERGROUND_CAN_SELL_AREA AS "undergroundCanSellArea"--"DWM_TARGET_WORTH_DTL"."UNDERGROUND_CAN_SELL_AREA" IS '地下可售面积';
+,CASE WHEN (TOTAL_CARPORT+GROUND_CAN_SELL_AREA)=0 THEN 0 ELSE WORTH_yuan/(TOTAL_CARPORT+GROUND_CAN_SELL_AREA) END
+AS "averagePrice"---"DWM_TARGET_WORTH_DTL"."AVERAGE_PRICE" IS '均价（手动录入）';
+,WORTH_yuan/10000 AS "worth"----"DWM_TARGET_WORTH_DTL"."WORTH" IS '货值';
+,pt.is_carport as "isCarport"---"DWM_TARGET_WORTH_DTL"."IS_CARPORT" IS '是否车位,1:是,0:否';
+,WORTH_yuan
 FROM 汇总
-left join MDM_BUILD_PRODUCT_TYPE pt on 汇总.PRODUCT_TYPE_ID=pt.id
+left join MDM_BUILD_PRODUCT_TYPE pt on 汇总.PRODUCT_TYPE_ID=pt.id)
+
+select * from 结果
 ;
 
 END P_DWM_TARGET_WORTH_REF;
 ----------------------------------------------chenl20200621结束------从主数据刷新目标货值存储过程
+
 
 ----------------------------------------------chenl20200621开始------从主数据刷新目标货值存储过程注册
 /
@@ -398,7 +359,7 @@ CREATOR = d_createName;
 ---数据源注册
 	INSERT INTO udp_component_data_source ( id, data_source, data_source_type, parent_field, CHILD_FIELD,pk_field, lable_field, CREATOR )
 	VALUES
-( d_table_dataSource, 'DWM_TARGET_WORTH_REF', 'procedure', 'parentId','id', 'id', 'objName', d_createName );
+( d_table_dataSource, 'DWM_TARGET_WORTH_REF', 'procedure', 'worthDtlParentId','worthDtlId', 'worthDtlId', 'objName', d_createName );
 ---存储过程注册
 INSERT INTO udp_procedure_registration (id,name,code,state,creator) 
 VALUES (d_table_dataSource_procedure,'P_DWM_TARGET_WORTH_REF','DWM_TARGET_WORTH_REF',1,d_createName);
