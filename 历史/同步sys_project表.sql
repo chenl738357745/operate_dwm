@@ -57,9 +57,4 @@ WITH proj AS (
     SELECT proj_id,MAX(phase_order) max FROM mdm_project_phase GROUP BY proj_id) vv ON v.proj_id=vv.proj_id AND v.phase_order=vv.max) e ON d.project_original_id=e.proj_id WHERE d.approval_status='“—…Û∫À' ORDER BY d.project_code)
 SELECT PARCEL_ORIGINAL_ID,parcel_name,PROJECT_ORIGINAL_ID,land_transfer_contract_code,contract_total_price,land_transfer_method,land_transferer,land_get_date,hand_over_date,land_state,land_address,land_useage,province_name,city_name,district_name,remarks,province_id,city_id,district_id FROM MDM_PARCEL pa LEFT JOIN proj p ON pa.PROJECT_ID=p.id where  p.id is not null and PARCEL_ORIGINAL_ID  is not null;
 commit;
-
-
-
-
-
 END P_SYS_PROJ_SYNCHRONIZATION;
