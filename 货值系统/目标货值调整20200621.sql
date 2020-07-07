@@ -184,7 +184,7 @@ where  ph.phase_name='可研版' and obj_base.objtype='项目'
         ------0 AVERAGE_PRICE,-- '均价（手动录入）'
          ------0 WORTH,-- '均价（手动录入）'
         l_UUID as TARGET_WORTH_ID,--'货值主键';
-        0 OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋40业态）';
+        40 OBJ_TYPE,-- '对象类型（0：项目；20：分期；30：楼栋40业态）';
         可研版本对象.OBJ_PHASE_ID as OBJ_PHASE_ID,
         可研版本对象.id as WORTH_DTL_PARENT_ID,
         可研版本对象.OBJ_ID as OBJ_PARENT_ID,
