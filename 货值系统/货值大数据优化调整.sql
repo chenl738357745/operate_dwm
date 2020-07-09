@@ -16,13 +16,17 @@ END;
 /
 create or replace PROCEDURE P_DWM_W_WORTH_BIG_DATA
 (
-	  ORGID        IN VARCHAR2
-	 ,ORGTYPE      IN VARCHAR2
-     ,i_source      IN VARCHAR2
-	 ,TARGETWORTH  OUT SYS_REFCURSOR
-	 ,DYNAMICWORTH OUT SYS_REFCURSOR
-     ,O_SOURCECONFIG OUT SYS_REFCURSOR
-	 ,DESCRIPTION  OUT CLOB
+	  ORGID         IN VARCHAR2---查询货值的组织
+	 ,ORGTYPE       IN VARCHAR2---查询货值的类型 
+     ,i_source      IN VARCHAR2---请求数据源 OA、DWM
+--     ,userid           IN               VARCHAR2---当前登录人
+--     ,stationid        IN               VARCHAR2---当前登录人岗位
+--     ,deptid           IN               VARCHAR2---当前登录人部门
+--     ,companyid        IN               VARCHAR2---当前登录人公司
+	 ,TARGETWORTH  OUT SYS_REFCURSOR---目标货值
+	 ,DYNAMICWORTH OUT SYS_REFCURSOR---动态货值
+     ,O_SOURCECONFIG OUT SYS_REFCURSOR---配置
+	 ,DESCRIPTION  OUT CLOB--货值下方描述
 ) AS
 		--动态货值监控-tab货值大数据
 		--作者：陈丽
@@ -43,8 +47,8 @@ create or replace PROCEDURE P_DWM_W_WORTH_BIG_DATA
 		V_DT_JGBAHZ_VALUE   NUMBER(18, 2); --竣工备案货值
 		V_DT_JZHZ_VALUE     NUMBER(18, 2); --结转货值
         
-        min_base_width VARCHAR2(10):='85';
-        base_width NUMBER(18, 2):=400;
+        min_base_width VARCHAR2(10):=(case when i_source='OA' then '75' else '85' end);
+        base_width NUMBER(18, 2):=(case when i_source='OA' then 200 else 400 end);
         未取规证	 VARCHAR2(10):=min_base_width;
         规划许可证阶段 VARCHAR2(10):=	min_base_width;
         施工许可证阶段 VARCHAR2(10):=	min_base_width;
@@ -73,15 +77,22 @@ BEGIN
  
         
    BEGIN   
-    OPEN o_sourceConfig FOR select (case when i_source='OA' then 40 else 60 end) as rowHeight
+    OPEN o_sourceConfig FOR select (case when i_source='OA' then 50 else 60 end) as rowHeight
          ,(case when i_source='OA' then 12 else 18 end) as valueFontSize
-         ,12 as descriptionFontSize from dual;
+         ,(case when i_source='OA' then 50 else 60 end) as  leftWidth
+         ,(case when i_source='OA' then 5 else 10 end) as  spacing
+         ,12 as descriptionFontSize
+          from dual;
          jumpurl:=(case when i_source='OA' then oaj else mj end);
            EXCEPTION
         WHEN OTHERS THEN 
            jumpurl:=mj;
         OPEN o_sourceConfig FOR select 60 as rowHeight
-         ,18 as fontSize,12 as descriptionFontSize from dual;
+         ,18 as valueFontSize
+         ,60 as  leftWidth
+         ,10 as  spacing
+         ,12 as descriptionFontSize
+          from dual;
     END; 
 		SELECT NVL((SELECT ROUND(SUM(DDV.VALUE_DT_ALL) / 100000000, 2)
 						FROM   (SELECT SBU.ORG_NAME, SBU.ID FROM SYS_BUSINESS_UNIT SBU WHERE SBU.IS_COMPANY = 1 START WITH SBU.ID = ORGID CONNECT BY PRIOR SBU.ID = SBU.PARENT_ID) PP
