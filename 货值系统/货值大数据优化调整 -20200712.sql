@@ -79,10 +79,10 @@ BEGIN
         
    BEGIN   
     OPEN o_sourceConfig FOR select (case when page_source=oa_page_source_val then 40 else 60 end) as rowHeight
-         ,(case when page_source=oa_page_source_val then 12 else 18 end) as valueFontSize
+         ,(case when page_source=oa_page_source_val then 15 else 18 end) as valueFontSize
          ,(case when page_source=oa_page_source_val then 50 else 60 end) as  leftWidth
          ,(case when page_source=oa_page_source_val then 2 else 10 end) as  spacing
-         ,(case when page_source=oa_page_source_val then 10 else 12 end) as descriptionFontSize
+         ,(case when page_source=oa_page_source_val then 10 else 9 end) as descriptionFontSize
            from dual;
          jumpurl:=(case when page_source=oa_page_source_val then oaj else mj end);
            EXCEPTION
