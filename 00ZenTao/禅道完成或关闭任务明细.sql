@@ -44,6 +44,7 @@ and zt_task.STATUS IN ('done','closed')
 AND zt_task.deleted='0'
 -- 关闭时间在本月
 -- and DATE_FORMAT( zt_task.finishedDate, '%Y%m' ) = DATE_FORMAT( CURDATE() , '%Y%m' )
+-- 关闭时间在上月
 and PERIOD_DIFF( date_format( now() , '%Y%m' ) ,date_format( zt_task.finishedDate, '%Y%m' ) ) =1
 -- 完成时间在本月
 -- - --------------------------------------------------------------------------------------------------
