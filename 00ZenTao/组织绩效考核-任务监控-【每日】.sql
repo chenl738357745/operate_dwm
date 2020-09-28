@@ -53,9 +53,11 @@ LEFT JOIN (
 	SELECT objectID,GROUP_CONCAT(CONCAT(zt_action.extra,":",zt_action.`comment`) SEPARATOR '；') as "过程备注" FROM zt_action
 	where zt_action.`comment`<>'' and zt_action.`comment` is not null 
 	group by objectID ) AS action ON result.禅道编号=action.objectID
-	 where   result.产品 like '%【组织绩效考核】专项开发-西南ERP计划系统%'
+	 where  1=1
+	 -- 根据产品查询
+	 -- and result.产品 like '%【组织绩效考核】专项开发-西南ERP计划系统%' 
+	and result.任务更新消耗工时<>0
 	 -- 当天
-	 and (date(result.任务更新时间) = curdate() or date(result.任务更新时间) = curdate() or  date(result.任务更新时间) = curdate())
-	
-
--- select * from zt_taskestimate where id='3809'
+	 and (date(result.任务更新时间) = curdate()-1 or date(result.任务更新时间) = curdate() or  date(result.任务更新时间) = curdate())
+	 -- 当天加减查询
+	-- and (date(result.任务更新时间) = DATE_ADD(curdate(),INTERVAL -1 DAY) or date(result.任务更新时间) = DATE_ADD(curdate(),INTERVAL 1 DAY) or  date(result.任务更新时间) =DATE_ADD(curdate(),INTERVAL -1 DAY))
