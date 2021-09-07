@@ -46,6 +46,7 @@ where ut.Table_Name='OPM_T_GROUP_CASH' and ut.COLUMN_NAME like '%FMA%'
 order by ut.column_name;
 
     
+      
    update opm_t_group_cash set FMA_AVAILABLE_FUNDS='' where FMA_AVAILABLE_FUNDS not like '=%';
     
    update opm_t_group_cash set FMA_CASH_REMAINING_AMOUNT='' where FMA_CASH_REMAINING_AMOUNT not like '=%';
@@ -87,8 +88,6 @@ order by ut.column_name;
    update opm_t_group_cash set FMA_TAXES='' where FMA_TAXES not like '=%';
     
    update opm_t_group_cash set FMA_TOTAL_SOURCE_FUNDS='' where FMA_TOTAL_SOURCE_FUNDS not like '=%';
-  
-
 
 
 

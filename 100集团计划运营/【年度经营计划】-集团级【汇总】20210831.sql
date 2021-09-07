@@ -1,5 +1,19 @@
+CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP" (planyear IN number
+--计划年
+) AS-- 根据年份按项目【汇总区域】
+-- 注意：
+--作者： chenl--日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+BEGIN 
+BEGIN
+  P_OPM_SUM_GROUP_CASH(
+    PLANYEAR => PLANYEAR
+  );
+--rollback; 
+END;
+END P_OPM_SUM_GROUP;
+/
 ----汇总
-CREATE OR REPLACE PROCEDURE "P_OPM_SUM_CASH_GROUP" (planyear IN number
+CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_CASH" (planyear IN number
 --计划年
 ) AS-- 根据年份【汇总集团】现金流
 -- 注意：
@@ -7,7 +21,7 @@ CREATE OR REPLACE PROCEDURE "P_OPM_SUM_CASH_GROUP" (planyear IN number
 BEGIN 
 ----获取该年下所有项目，更新项目数据
 UPDATE opm_group_cash a
-SET    (
+SET  (
 a.remaining_amount,
 a.sour_sales_collection,
 a.sour_rental_income,
@@ -52,7 +66,7 @@ b.util_subtotal_fund,
 b.cash_flow_funds,
 b.cash_remaining_amount,
 b.cash_available_funds     
-        FROM   OPM_REGIONAL_CASH b
+        FROM   OPM_REGION_CASH b
         WHERE  b.object_id = a.object_id
         AND    a.plan_year=planyear);
-END P_OPM_SUM_CASH_GROUP;
+END P_OPM_SUM_GROUP_CASH;

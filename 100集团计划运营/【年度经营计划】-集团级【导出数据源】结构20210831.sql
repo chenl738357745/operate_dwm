@@ -82,14 +82,14 @@ Select * From Base Order By "sheetOrder";
 ---SELECT 'groupsheet1' "sheetID", '字段id' "fieldId",'字段中文名' "lable",'字段名称' "field",'宽度' "wide",'对齐方式' "align",'单元格格式（常规、数字、百分比）' "dataType",'列排序' "fieldOrder",'父级字段Id' "parentId",'对齐方式(left、right、center)' "textAlign",'同内容合并' "isColumnMerge"  From Dual
 BEGIN P_OPM_FIELDS_GROUP (USERID=> USERID,STATIONID=> STATIONID,DEPARTMENTID=> DEPARTMENTID,COMPANYID=> COMPANYID,PLANYEAR=> PLANYEAR,Sheetsfields=> Sheetsfields); END;
 
---- 3、sheet页的数据开始行集合
-----Select 'groupsheet1' "sheetID",'开始索引（1开始）' "beginIndex",'冻结行索引' As "trozenRowindex",'冻结列索引' As "frozenColumnindex" From Dual
+--- 3、sheet页的样式
+----Select 'groupsheet1' "sheetID",'冻结行索引' As "trozenRowindex",'冻结列索引' As "frozenColumnindex" From Dual
 Open Sheetsstyle For 
-Select 'groupsheet1' "sheetID",4 "beginIndex",2 As "trozenRowindex",3 As "frozenColumnindex" From Dual
+Select 'groupsheet1' "sheetID",2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
 Union All 
-Select 'groupsheet2' "sheetID",4 "beginIndex",2 As "trozenRowindex",3 As "frozenColumnindex" From Dual
+Select 'groupsheet2' "sheetID",2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
 Union All 
-Select 'groupsheet3' Sheetid,4 "beginIndex",2 As "trozenRowindex",3 As "frozenColumnindex" From Dual
+Select 'groupsheet3' Sheetid,2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
 ; 
 END P_OPM_EXCEL_STRUCT_GROUP;
 /
