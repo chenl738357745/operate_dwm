@@ -1,48 +1,48 @@
-create or replace PROCEDURE "P_OPM_ED_REGION_INVENTORY" (
-userid IN VARCHAR2,--当前用户id
-stationid IN VARCHAR2,--当前用户岗位id
-departmentid IN VARCHAR2,--当前用户部门id
-companyid IN VARCHAR2,--当前用户公司id
-planyear in number,--计划年
-regionCompanyId in VARCHAR2,---计划区域公司
-groupsheet3 OUT SYS_REFCURSOR--2、sheet3 供销存
-) AS
--- 
---- 注意：
----1、每个sheet页输出数据变量，必须使用P_OPM_ES_GROUP中定义的sheetId命名一致；//程序逻辑约定，用于关联sheet页与sheet页的数据建立关系。
----2、返回结果列字段名称，必须与P_OPM_ES_GROUP中Sheetsfields返回的sheetId的字段名一致；//程序逻辑约定,用于表头与数据对应。
----3、父级id字段命名 parent_id，层级命名 row_level，必须按此命名。//程序逻辑约定，用于行分组。
---作者：chenl
---日期：2021/08/24
-begin
-OPEN groupsheet3 FOR 
-SELECT 1 from dual;
-
-END P_OPM_ED_REGION_INVENTORY;
-/
-create or replace PROCEDURE "P_OPM_ED_REGION_OPERATING" (
-userid IN VARCHAR2,--当前用户id
-stationid IN VARCHAR2,--当前用户岗位id
-departmentid IN VARCHAR2,--当前用户部门id
-companyid IN VARCHAR2,--当前用户公司id
-planyear in number,--计划年
-regionCompanyId in VARCHAR2,---计划区域公司
-groupsheet1 OUT SYS_REFCURSOR--2、sheet1 经营计划
-) AS
--- 
---- 注意：
----1、每个sheet页输出数据变量，必须使用P_OPM_ES_GROUP中定义的sheetId命名一致；//程序逻辑约定，用于关联sheet页与sheet页的数据建立关系。
----2、返回结果列字段名称，必须与P_OPM_ES_GROUP中Sheetsfields返回的sheetId的字段名一致；//程序逻辑约定,用于表头与数据对应。
----3、父级id字段命名 parent_id，层级命名 row_level，必须按此命名。//程序逻辑约定，用于行分组。
---作者：chenl
---日期：2021/08/24
-begin
-OPEN groupsheet1 FOR 
-SELECT 1 from dual;
-
-END P_OPM_ED_REGION_OPERATING;
-
-/
+--create or replace PROCEDURE "P_OPM_ED_REGION_INVENTORY" (
+--userid IN VARCHAR2,--当前用户id
+--stationid IN VARCHAR2,--当前用户岗位id
+--departmentid IN VARCHAR2,--当前用户部门id
+--companyid IN VARCHAR2,--当前用户公司id
+--planyear in number,--计划年
+--regionCompanyId in VARCHAR2,---计划区域公司
+--groupsheet3 OUT SYS_REFCURSOR--2、sheet3 供销存
+--) AS
+---- 
+----- 注意：
+-----1、每个sheet页输出数据变量，必须使用P_OPM_ES_GROUP中定义的sheetId命名一致；//程序逻辑约定，用于关联sheet页与sheet页的数据建立关系。
+-----2、返回结果列字段名称，必须与P_OPM_ES_GROUP中Sheetsfields返回的sheetId的字段名一致；//程序逻辑约定,用于表头与数据对应。
+-----3、父级id字段命名 parent_id，层级命名 row_level，必须按此命名。//程序逻辑约定，用于行分组。
+----作者：chenl
+----日期：2021/08/24
+--begin
+--OPEN groupsheet3 FOR 
+--SELECT 1 from dual;
+--
+--END P_OPM_ED_REGION_INVENTORY;
+--/
+--create or replace PROCEDURE "P_OPM_ED_REGION_OPERATING" (
+--userid IN VARCHAR2,--当前用户id
+--stationid IN VARCHAR2,--当前用户岗位id
+--departmentid IN VARCHAR2,--当前用户部门id
+--companyid IN VARCHAR2,--当前用户公司id
+--planyear in number,--计划年
+--regionCompanyId in VARCHAR2,---计划区域公司
+--groupsheet1 OUT SYS_REFCURSOR--2、sheet1 经营计划
+--) AS
+---- 
+----- 注意：
+-----1、每个sheet页输出数据变量，必须使用P_OPM_ES_GROUP中定义的sheetId命名一致；//程序逻辑约定，用于关联sheet页与sheet页的数据建立关系。
+-----2、返回结果列字段名称，必须与P_OPM_ES_GROUP中Sheetsfields返回的sheetId的字段名一致；//程序逻辑约定,用于表头与数据对应。
+-----3、父级id字段命名 parent_id，层级命名 row_level，必须按此命名。//程序逻辑约定，用于行分组。
+----作者：chenl
+----日期：2021/08/24
+--begin
+--OPEN groupsheet1 FOR 
+--SELECT 1 from dual;
+--
+--END P_OPM_ED_REGION_OPERATING;
+--
+--/
 create or replace PROCEDURE "P_OPM_ED_REGION_CASH" (
 userid IN VARCHAR2,--当前用户id
 stationid IN VARCHAR2,--当前用户岗位id
