@@ -1,19 +1,23 @@
-CREATE OR REPLACE PROCEDURE "P_OPM_SUM_REGION" (planyear IN number,projectid in varchar2
+CREATE OR REPLACE PROCEDURE "P_OPM_SUM_REGION_INVENTORY" (planyear IN number,projectid in varchar2
 --计划年
-) AS-- 根据年份按项目【汇总区域】
+) AS-- 根据年份按项目【汇总区域】供销存（总表3）-根据附表1汇总
 -- 注意：
---作者： chenl--日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+--作者： 吴洋负责实现
+--日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
 BEGIN 
-BEGIN
-  P_OPM_SUM_REGION_CASH(
-    PLANYEAR => PLANYEAR,
-    PROJECTID => PROJECTID
-  );
---rollback; 
-END;
-END P_OPM_SUM_REGION;
+DBMS_OUTPUT.PUT_LINE('初始化脚本');
+END P_OPM_SUM_REGION_INVENTORY;
 /
-
+CREATE OR REPLACE PROCEDURE "P_OPM_SUM_REGION_OPERATING" (planyear IN number,projectid in varchar2
+--计划年
+) AS-- 根据年份按项目【汇总区域】经营计划（总表1）-根据附表4、附表2汇总
+-- 注意：
+--作者： 王一博负责实现
+--日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('初始化脚本');
+END P_OPM_SUM_REGION_OPERATING;
+/
 CREATE OR REPLACE PROCEDURE "P_OPM_SUM_REGION_CASH" (planyear IN number,projectid in varchar2
 --计划年
 ) AS-- 根据年份按项目【汇总区域】现金流-根据附表3汇总
@@ -86,3 +90,31 @@ from
 WHERE  b.project_id = a.object_id and  a.plan_year=planyear and a.object_id=projectid);
 
 END P_OPM_SUM_REGION_CASH;
+/
+CREATE OR REPLACE PROCEDURE "P_OPM_SUM_REGION" (planyear IN number,projectid in varchar2
+--计划年
+) AS-- 根据年份按项目【汇总区域】
+-- 注意：
+--作者： chenl--日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+BEGIN 
+BEGIN
+  P_OPM_SUM_REGION_CASH(
+    PLANYEAR => PLANYEAR,
+    PROJECTID => PROJECTID
+  );
+  P_OPM_SUM_REGION_INVENTORY(
+    PLANYEAR => PLANYEAR,
+    PROJECTID => PROJECTID
+  );
+  P_OPM_SUM_REGION_OPERATING(
+    PLANYEAR => PLANYEAR,
+    PROJECTID => PROJECTID
+  );
+--rollback; 
+  commit;
+EXCEPTION
+    WHEN OTHERS THEN
+        dbms_output.put_line(SQLERRM);
+        ROLLBACK;
+END;
+END P_OPM_SUM_REGION;

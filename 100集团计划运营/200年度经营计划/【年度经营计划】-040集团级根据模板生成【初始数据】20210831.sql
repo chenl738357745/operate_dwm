@@ -47,4 +47,4 @@ FROM opm_t_proj_budget where belong_proj_id=projectid;
 -----------------------------------ÏÖ½ðÁ÷
 END P_OPM_INITIAL_PROJ;
 
-select * from  opm_proj_budget
+
