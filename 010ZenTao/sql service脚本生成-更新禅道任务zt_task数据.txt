@@ -1,0 +1,32 @@
+
+DROP table zt_task;
+
+CREATE TABLE [dbo].zt_task(
+    唯一标识 [nchar](300) NULL ,
+	name [nchar](300) NULL,
+	estimate int null,
+
+	estStarted [nchar](300) null,---预计开始时间
+	deadline [nchar](300) null,---截止时间
+	assignedTo [nchar](300) null,---指派给
+	remark [nchar](300) null DEFAULT 'project-111',
+	story [nchar](300) null DEFAULT '1155',-------------- 需求
+	project [nchar](300) NULL DEFAULT '111',-------------- 迭代
+	[type] [nchar](300) NULL DEFAULT 'devel',-------------- 开发类型
+) ON [PRIMARY]
+
+GO
+
+
+select 'INSERT INTO '+replace('`zt_task`(`project`,`story`,`type` ,`name`, `estimate`,`left`, `deadline`, `assignedTo`, `estStarted`) 
+VALUES ('+project+','''+story+''', '''+[type]+''', '''+[name]+'-（'+CONVERT(varchar,GETDATE(),20)+')-('+remark+'-'+唯一标识+')'','''+cast(Convert(decimal(18,2),[estimate]/8) as varchar(80))+''', '''+cast(Convert(decimal(18,2),[estimate]/8) as varchar(80))+''','''+[deadline]+''','''+assignedTo+''','''+[estStarted]+'''); '  
+,' ','')from zt_task;
+
+
+select 'update zt_task set  '
++replace('assignedTo='''+assignedTo+''', estStarted='''+[estStarted]+''',`name`='''+[name]+'-'+CONVERT(varchar,GETDATE(),20)+'-('+唯一标识+')'',estimate='''+cast(Convert(decimal(18,2),[estimate]/8) as varchar(80))+''',deadline='''+[deadline]+''''
+,' ','')+',`left`=(case when zt_task.STATUS=''wait'' then '''+cast(Convert(decimal(18,2),[estimate]/8) as varchar(80))+''' else `left` END)  
+where name like ''%-('
++replace(remark+'-'+唯一标识
+,' ','')+')'' ; '
+ from zt_task ;
