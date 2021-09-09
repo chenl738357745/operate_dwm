@@ -66,11 +66,7 @@ LEFT JOIN (
 	where zt_action.`comment`<>'' and zt_action.`comment` is not null 
 	group by objectID ) AS action ON result.禅道编号=action.objectID
 	-- where   result.任务名称 like '%集团测试%'
-<<<<<<< HEAD:ZenTao/no_c_bug_task.sql
-	order by result.优先级,result.产品,result.模块id,result.类型,result.禅道编号
-=======
 	order by result.产品,result.模块id,result.优先级,result.类型,result.禅道编号
->>>>>>> develop:010ZenTao/历史/no_c_bug_task.sql
 
 
 
