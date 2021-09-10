@@ -10,6 +10,7 @@ update opm_t_group_cash set object_type='项目'  where object_name is not null ;
 
 update opm_t_group_cash set level_code=1 where object_type='公司' or object_type='总计';
 update opm_t_group_cash set level_code=2 where object_type='项目';
+update opm_t_group_cash set OBJECT_NAME=parent_id  where object_type='公司' or object_type='总计';
 
 select ' update opm_t_group_cash set parent_id='''||id||'''  where order_code>'||order_code||' and  object_type=''项目'';' from  opm_t_group_cash where id like '%公司%' order by lpad( order_code, 10, '0' );
 
