@@ -1,25 +1,25 @@
-CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_INVENTORY" (planyear IN number--计划年
-,companyid in varchar2--区域公司
-) AS-- 根据年份按区域公司id【汇总集团级，项目数据】供销存（集团总表3）-根据区域总表3汇总
--- 注意：
---作者： 吴洋负责实现
---日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
-BEGIN 
-DBMS_OUTPUT.PUT_LINE('初始化脚本');
-END P_OPM_SUM_GROUP_INVENTORY;
-/
-CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_OPERATING" (planyear IN number--计划年
-,companyid in varchar2--区域公司
-) AS-- 根据年份按区域公司id【汇总集团级，项目数据】经营计划（集团总表1）-根据区域总表1汇总
--- 注意：
---作者： 吴洋负责实现
---日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
-BEGIN 
-DBMS_OUTPUT.PUT_LINE('初始化脚本');
-
-END P_OPM_SUM_GROUP_OPERATING;
-
-/
+--CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_INVENTORY" (planyear IN number--计划年
+--,companyid in varchar2--区域公司
+--) AS-- 根据年份按区域公司id【汇总集团级，项目数据】供销存（集团总表3）-根据区域总表3汇总
+---- 注意：
+----作者： 吴洋负责实现
+----日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+--BEGIN 
+--DBMS_OUTPUT.PUT_LINE('初始化脚本');
+--END P_OPM_SUM_GROUP_INVENTORY;
+--/
+--CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_OPERATING" (planyear IN number--计划年
+--,companyid in varchar2--区域公司
+--) AS-- 根据年份按区域公司id【汇总集团级，项目数据】经营计划（集团总表1）-根据区域总表1汇总
+---- 注意：
+----作者： 吴洋负责实现
+----日期： 2021/08/24 FIELDSINFO SYS_REFCURSOR;
+--BEGIN 
+--DBMS_OUTPUT.PUT_LINE('初始化脚本');
+--
+--END P_OPM_SUM_GROUP_OPERATING;
+--
+--/
 
 ----汇总
 CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP_CASH" (planyear IN number--计划年
@@ -77,8 +77,8 @@ b.cash_flow_funds,
 b.cash_remaining_amount,
 b.cash_available_funds     
         FROM   OPM_REGION_CASH b
-        WHERE  b.object_id = a.object_id
-        AND    a.plan_year=planyear and b.BELONG_REGION_ID=companyid);
+        WHERE  b.object_id = a.object_id)
+        where    a.plan_year=planyear and b.BELONG_REGION_ID=companyid;
 END P_OPM_SUM_GROUP_CASH;
 /
 CREATE OR REPLACE PROCEDURE "P_OPM_SUM_GROUP" (planyear IN number--计划年
