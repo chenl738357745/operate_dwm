@@ -151,6 +151,6 @@ SELECT "sheetID"
     , '{currentYear_AddThree}', currentYear_AddThree)
     , '{currentYear_AddFour}', currentYear_AddFour)"lable"  
 ,"fieldLevel","isHide","isEnd","headerBgColor","headerFontColor","fieldId","field","width","align","dataFormat","fieldOrder","parentId","textAlign","isColumnMerge"
-from resultdata;
+from resultdata order by "fieldOrder";
 
 END P_OPM_FIELD_GROUP;

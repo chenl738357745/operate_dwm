@@ -6,7 +6,12 @@ create or replace PROCEDURE "P_OPM_INIT" (planyear IN number
 plan_year   VARCHAR2(500):=(case when planyear is null or planyear='' then  to_char(sysdate, 'yyyy' ) else planyear end); 
 BEGIN 
 -----------------------------------集团级
-  
+  BEGIN
+  P_OPM_INIT_GROUP(
+    PLANYEAR => PLANYEAR
+  );
+--rollback; 
+END;
 -----------------------------------区域级
   begin
   P_OPM_INIT_REGION(
@@ -15,7 +20,13 @@ BEGIN
   );
   end;
 -----------------------------------项目级
- 
+ BEGIN
+  P_OPM_INIT_PROJ(
+    PLANYEAR => PLANYEAR,
+    REGIONORGID => null
+  );
+--rollback; 
+END;
 -----------------------------------
 END P_OPM_INIT;
 
