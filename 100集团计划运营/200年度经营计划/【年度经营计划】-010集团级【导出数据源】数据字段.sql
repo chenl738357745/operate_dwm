@@ -106,94 +106,51 @@ Sheetsfields OUT SYS_REFCURSOR--字段2集合
 ---1、field值同sheet页唯一;//程序导出导入唯一识别列的标识。
 ---2、fieldId值同sheet页唯一;//用于建立符合表头
 --作者：chenl
---日期：2021/08/24
----事例 SELECT 'sheet页id，使用P_OPM_ES_GROUP中定义的sheetId，不允许改变' "sheetID",1 "fieldLevel",0 "isHide",是否墨迹字段 "isEnd", '字段id' "fieldId",'字段中文名' "lable",'字段名称' "field",'宽度' "width",'对齐方式' "align",'单元格格式（常规、数字、百分比）' "dataType",'列排序（列顺序）' "fieldOrder",'父级字段Id' "parentId",'对齐方式(left、right、center)' "textAlign",'同内容合并（1合并，0不合并）' "isColumnMerge"  From Dual
+--日期：2021/08/24 --截至'||to_char(planyear-1)||'年底
+---事例 SELECT 'sheet页id，使用P_OPM_ES_GROUP中定义的sheetId，不允许改变' "sheetID",1 "fieldLevel",0 "isHide",是否末级字段"isEnd",'GREY_40_PERCENT' "headerBgColor",'LIGHT_TURQUOISE' "headerFontColor", '字段id' "fieldId",'字段中文名' "lable",'字段名称' "field",'宽度' "width",'对齐方式' "align",'单元格格式（常规、数字、百分比）' "dataType",'列排序（列顺序）' "fieldOrder",'父级字段Id' "parentId",'对齐方式(left、right、center)' "textAlign",'同内容合并（1合并，0不合并）' "isColumnMerge"  From Dual
+    currentYear_MinusFour   VARCHAR2(500):=to_char(planyear-4); 
+    currentYear_MinusThree   VARCHAR2(500):=to_char(planyear-3); 
+    currentYear_MinusTwo   VARCHAR2(500):=to_char(planyear-2);
+    currentYear_MinusOne  VARCHAR2(36):=to_char(planyear-1);
+    currentYear   VARCHAR2(50):=to_char(planyear);--当前年
+    currentYear_AddOne  VARCHAR2(36):=to_char(planyear-1);
+    currentYear_AddTwo   VARCHAR2(500):=to_char(planyear-2);
+    currentYear_AddThree   VARCHAR2(500):=to_char(planyear-3);  
+    currentYear_AddFour   VARCHAR2(500):=to_char(planyear-4);  
 begin
 OPEN Sheetsfields FOR 
+---------------------------------sheet1
 with groupsheet1 as  (
-SELECT 1 "fieldLevel",0 "isHide",1 "isEnd", '层级' "fieldId",'层级' "lable",'LEVEL_CODE' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",9999 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
+SELECT sheet_id AS "sheetID",field_level AS "fieldLevel",is_hide AS "isHide",is_end AS "isEnd",header_bgcolor AS "headerBgColor",header_fontcolor AS "headerFontColor",field_id AS "fieldId",field_lable AS "lable",field_field AS "field",field_width AS "width",field_align AS "align",field_dataformat AS "dataFormat",field_order AS "fieldOrder",field_parentid AS "parentId",field_textalign AS "textAlign",is_columnmerge_column AS "isColumnMerge" 
+FROM OPM_EXCEL_FILED WHERE SHEET_ID='groupsheet1'
 )
-,groupsheet2 as (
----必须层
-SELECT 1 "fieldLevel",0 "isHide",1 "isEnd", 'groupsheet2ParentId' "fieldId",'parentid' "lable",'PARENT_ID' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",9998 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-SELECT 1 "fieldLevel",0 "isHide",1 "isEnd", '层级' "fieldId",'层级' "lable",'LEVEL_CODE' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",9999 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-Union All
 ---------------------------------sheet2
----第一层
-SELECT 1 "fieldLevel",1 "isHide",1 "isEnd", 'id' "fieldId",'id' "lable",'id' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-SELECT 1 "fieldLevel",0 "isHide",1 "isEnd", 'groupsheet2序号id' "fieldId",'序号' "lable",'groupsheet2序号' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",3 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 1 "fieldLevel",0 "isHide",1 "isEnd",'城市/项目名称' "fieldId",'城市/项目名称' "lable",'OBJECT_NAME' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",5 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 1 "fieldLevel",0 "isHide",0 "isEnd",'2021年集团（区域）动态现金流' "fieldId",planyear||'年集团（区域）动态现金流' "lable",'2021年集团（区域）动态现金流' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",0 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
----第二层
-union all
-SELECT 2 "fieldLevel",0 "isHide",0 "isEnd", '截至2021年底' "fieldId",'截至'||to_char(planyear-1)||'年底' "lable",'截至2021年底' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",710 "fieldOrder",'2021年集团（区域）动态现金流' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 2 "fieldLevel",0 "isHide",0 "isEnd",'2022年资金来源计划' "fieldId",planyear||'年资金来源计划' "lable",'2022年资金来源计划' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",810 "fieldOrder",'2021年集团（区域）动态现金流' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 2 "fieldLevel",0 "isHide",0 "isEnd",'2022年资金运用计划' "fieldId",planyear||'年资金运用计划' "lable",'2022年资金运用计划' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",910 "fieldOrder",'2021年集团（区域）动态现金流' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 2 "fieldLevel",0 "isHide",0 "isEnd",'2022年当年现金流情况展示窗' "fieldId",planyear||'年当年现金流情况展示窗' "lable",'2022年当年现金流情况展示窗' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1010 "fieldOrder",'2021年集团（区域）动态现金流' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
----第三层
-union all
-SELECT 3 "fieldLevel",0 "isHide",1 "isEnd", '2021年底-期末资金余额' "fieldId",'2021年底-期末资金余额' "lable",'年底-期末资金余额' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",110 "fieldOrder",'截至2021年底' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'销售回款' "fieldId",'销售回款' "lable",'销售回款' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",210 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'租金收入' "fieldId",'租金收入' "lable",'租金收入' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",310 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'净增贷款' "fieldId",'净增贷款' "lable",'净增贷款' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",410 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'代收款' "fieldId",'代收款' "lable",'代收款' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",510 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'股东投入' "fieldId",'股东投入' "lable",'股东投入' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",610 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'往来投入' "fieldId",'往来投入' "lable",'往来投入' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",710 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'其他投入' "fieldId",'其他投入' "lable",'其他投入' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",810 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'资金来源合计' "fieldId",'资金来源合计' "lable",'资金来源合计' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",910 "fieldOrder",'2022年资金来源计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'土地费用' "fieldId",'土地费用' "lable",'土地费用' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1010 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'工程性支出' "fieldId",'工程性支出' "lable",'工程性支出' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1110 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'开发间接费' "fieldId",'开发间接费' "lable",'开发间接费' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1210 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'期间费用' "fieldId",'期间费用' "lable",'期间费用' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1310 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'税金' "fieldId",'税金' "lable",'税金' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1410 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'代付款' "fieldId",'代付款' "lable",'代付款' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1510 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'其他支出' "fieldId",'其他支出' "lable",'其他支出' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1610 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'往来支出' "fieldId",'往来支出' "lable",'往来支出' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1710 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'资金运用小计' "fieldId",'资金运用小计' "lable",'资金运用小计' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1810 "fieldOrder",'2022年资金运用计划' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'资金净流量' "fieldId",'资金净流量' "lable",'资金净流量' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",1910 "fieldOrder",'2022年当年现金流情况展示窗' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'展示窗-期末资金余额' "fieldId",'期末资金余额' "lable",'展示窗-期末资金余额' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",2010 "fieldOrder",'2022年当年现金流情况展示窗' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-union all
-Select 3 "fieldLevel",0 "isHide",1 "isEnd",'可动用资金' "fieldId",'可动用资金' "lable",'可动用资金' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",2110 "fieldOrder",'2022年当年现金流情况展示窗' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
-)---------------------------------sheet3
-,groupsheet3 as(
-Select 1 "fieldLevel",0 "isHide",1 "isEnd",'groupsheet3序号id' "fieldId",'序号' "lable",'groupsheet3序号' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",0 "fieldOrder",'2022年当年现金流情况展示窗' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
+,groupsheet2 as (
+SELECT sheet_id AS "sheetID",field_level AS "fieldLevel",is_hide AS "isHide",is_end AS "isEnd",header_bgcolor AS "headerBgColor",header_fontcolor AS "headerFontColor",field_id AS "fieldId",field_lable AS "lable",field_field AS "field",field_width AS "width",field_align AS "align",field_dataformat AS "dataFormat",field_order AS "fieldOrder",field_parentid AS "parentId",field_textalign AS "textAlign",is_columnmerge_column AS "isColumnMerge" 
+FROM OPM_EXCEL_FILED WHERE SHEET_ID='groupsheet2'
+)
+,groupsheet3 as (
+SELECT sheet_id AS "sheetID",field_level AS "fieldLevel",is_hide AS "isHide",is_end AS "isEnd",header_bgcolor AS "headerBgColor",header_fontcolor AS "headerFontColor",field_id AS "fieldId",field_lable AS "lable",field_field AS "field",field_width AS "width",field_align AS "align",field_dataformat AS "dataFormat",field_order AS "fieldOrder",field_parentid AS "parentId",field_textalign AS "textAlign",is_columnmerge_column AS "isColumnMerge" 
+FROM OPM_EXCEL_FILED WHERE SHEET_ID='groupsheet3'
 )
 ,resultdata as(
-select 'groupsheet1' "sheetID",groupsheet1.* from groupsheet1
+select groupsheet1.* from groupsheet1
 union all
-select 'groupsheet2' "sheetID",groupsheet2.* from groupsheet2
+select groupsheet2.* from groupsheet2
 union all
-select 'groupsheet3' "sheetID",groupsheet3.* from groupsheet3)
+select groupsheet3.* from groupsheet3)
 
-select * from resultdata order by "fieldOrder";
+SELECT "sheetID"
+,replace(replace(replace(replace(replace(replace(replace(replace("lable"
+    , '{currentYear_MinusFour}', currentYear_MinusFour)
+    , '{currentYear_MinusThree}', currentYear_MinusThree)
+    , '{currentYear_MinusTwo}', currentYear_MinusTwo)
+    , '{currentYear_MinusOne}', currentYear_MinusOne)
+    , '{currentYear}', currentYear)
+    , '{currentYear_AddOne}', currentYear_AddOne)
+    , '{currentYear_AddThree}', currentYear_AddThree)
+    , '{currentYear_AddFour}', currentYear_AddFour)"lable"  
+,"fieldLevel","isHide","isEnd","headerBgColor","headerFontColor","fieldId","field","width","align","dataFormat","fieldOrder","parentId","textAlign","isColumnMerge"
+from resultdata order by "fieldOrder";
 
 END P_OPM_FIELD_GROUP;

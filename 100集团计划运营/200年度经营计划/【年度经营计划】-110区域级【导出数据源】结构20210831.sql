@@ -29,7 +29,7 @@ INSERT INTO udp_procedure_parameter (procedure_registration_id,parameter_name,da
 INSERT INTO udp_procedure_parameter (procedure_registration_id,parameter_name,data_source_keyword,parameter_default,creator) VALUES (d_table_dataSource_procedure,'excel','','',d_createName);
 INSERT INTO udp_procedure_parameter (procedure_registration_id,parameter_name,data_source_keyword,parameter_default,creator) VALUES (d_table_dataSource_procedure,'sheets','','',d_createName);
 INSERT INTO udp_procedure_parameter (procedure_registration_id,parameter_name,data_source_keyword,parameter_default,creator) VALUES (d_table_dataSource_procedure,'sheetsFields','','',d_createName);
-INSERT INTO udp_procedure_parameter (procedure_registration_id,parameter_name,data_source_keyword,parameter_default,creator) VALUES (d_table_dataSource_procedure,'sheetsStyle','','',d_createName);
+
 
 ----- 先删除注册数据
 DELETE FROM udp_component_data_source WHERE CREATOR=d_createName1; commit;-->提交数据源注册
@@ -59,8 +59,7 @@ planyear in number,--计划年
 regionCompanyId in VARCHAR2,---计划区域公司
 excel OUT SYS_REFCURSOR,--excel信息
 sheets OUT SYS_REFCURSOR,--1、sheet页集合 【根据集合顺序】
-sheetsFields OUT SYS_REFCURSOR,--2、sheet页的表头集合
-sheetsStyle OUT SYS_REFCURSOR--3、sheet页的样式
+sheetsFields OUT SYS_REFCURSOR--2、sheet页的表头集合
 ) AS
 -- Export structure 经营计划-集团级导出结构定义  sheetID 不允许调整，用于sheet列、获取sheet页数据建立关联；
 -- 注意：列分组是按复合表头来分组。https://blog.csdn.net/lipinganq/article/details/53560931?locationNum=10&fps=1
@@ -68,33 +67,18 @@ sheetsStyle OUT SYS_REFCURSOR--3、sheet页的样式
 --日期：2021/08/24 https://blog.csdn.net/qq_27937043/article/details/72779442/
   FIELDSINFO SYS_REFCURSOR;
 begin
---- 0、excel
-Open excel For 
-select to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') "excelName" from dual;
---- 1、sheet页集合 
----Select 'groupsheet1' "sheetID",'总表1-集团、区域经营计划汇总表 +利润总额+回正时间2个' "seetName",'' "excelTitle",'表头背景颜色' "headerBgColor",'表头字体颜色' "HeaderFontColor",1 "SheetOrder",'是否使用行收折' "IsUseRowCollapse",'是否默认收折行' "IsDefaultCollapseRow" From Dual
-Open Sheets For 
-With Base As(
-Select 'groupsheet1' "sheetID",'总表1-集团经营计划汇总表 +利润总额+回正时间2个' "sheetName",'2022集团经营计划汇总表' "topDescription",'SEA_GREEN' "headerBgColor",'LIGHT_YELLOW' "headerFontColor",1 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" From Dual
-Union All
-Select 'groupsheet2' "sheetID",'总表2-集团现金流合计表' "sheetName",'2022年度各子公司动态现金流表' "topDescription",'DARK_TEAL' "headerBgColor",'LIGHT_GREEN' "headerFontColor",2 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" From Dual
-Union All
-Select 'groupsheet3' "sheetID",'总表3-供销存计划表（示例，线上直接导出）' "sheetName",'集团公司2021年度供销存计划明细分解表' "topDescription",'GREY_40_PERCENT' "headerBgColor",'LIGHT_TURQUOISE' "headerFontColor",3 "sheetOrder",1 "isUseRowCollapse",0 "isDefaultCollapseRow" From Dual
-)
-Select * From Base Order By "sheetOrder";
---- 2、sheet页的表头集合
----SELECT 'groupsheet1' "sheetID", '字段id' "fieldId",'字段中文名' "lable",'字段名称' "field",'宽度' "wide",'对齐方式' "align",'单元格格式（常规、数字、百分比）' "dataType",'列排序' "fieldOrder",'父级字段Id' "parentId",'对齐方式(left、right、center)' "textAlign",'同内容合并' "isColumnMerge"  From Dual
-BEGIN P_OPM_FIELD_GROUP (USERID=> USERID,STATIONID=> STATIONID,DEPARTMENTID=> DEPARTMENTID,COMPANYID=> COMPANYID,PLANYEAR=> PLANYEAR,Sheetsfields=> Sheetsfields); END;
---- 3、sheet页的样式
-----Select 'groupsheet1' "sheetID",'冻结行索引' As "trozenRowindex",'冻结列索引' As "frozenColumnindex" From Dual
-Open Sheetsstyle For 
-Select 'groupsheet1' "sheetID",2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
-Union All 
-Select 'groupsheet2' "sheetID",2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
-Union All 
-Select 'groupsheet3' Sheetid,2 As "frozenRowindex",3 As "frozenColumnindex" From Dual
-; 
+P_OPM_ES_GROUP(
+    USERID => USERID,
+    STATIONID => STATIONID,
+    DEPARTMENTID => DEPARTMENTID,
+    COMPANYID => COMPANYID,
+    PLANYEAR => PLANYEAR,
+    EXCEL => EXCEL,
+    SHEETS => SHEETS,
+    SHEETSFIELDS => SHEETSFIELDS
+  );
 END P_OPM_ES_REGION;
+
 /
 create or replace PROCEDURE "P_OPM_ED_REGION" (
 userid IN VARCHAR2,--当前用户id
