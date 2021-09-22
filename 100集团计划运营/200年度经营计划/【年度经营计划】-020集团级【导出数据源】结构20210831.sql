@@ -67,14 +67,14 @@ begin
 Open excel For 
 select to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') "excelName" from dual;
 --- 1、sheet页集合 
----Select 'groupsheet1' "sheetID",'总表1-集团、区域经营计划汇总表 +利润总额+回正时间2个' "seetName",'' "excelTitle",'表头背景颜色' "headerBgColor",'表头字体颜色' "HeaderFontColor",1 "SheetOrder",'是否使用行收折' "IsUseRowCollapse",'是否默认收折行' "IsDefaultCollapseRow",'冻结行索引' As "trozenRowindex",'冻结列索引' As "frozenColumnindex" From Dual
+---Select 'groupsheet1' "sheetID",'总表1-集团、区域经营计划汇总表 +利润总额+回正时间2个' "seetName",'' "excelTitle",'表头背景颜色' "headerBgColor",'表头字体颜色' "HeaderFontColor",1 "SheetOrder",'是否使用行收折' "IsUseRowCollapse",'是否默认收折行' "IsDefaultCollapseRow",'冻结行索引' As "trozenRowindex",'冻结列索引' As "frozenColumnindex",'公式背景色' As "formulaBgColor",'顶部描述背景色' "topDescriptionBgColor",'顶部描述文本颜色' "topDescriptionFontColor",'顶部描述文本对齐方式（left、center、right）' "topDescriptionTextalign",'顶部描述字体大小' "topDescriptionTextSize" From Dual
 Open Sheets For 
 With Base As(
-Select 'groupsheet1' "sheetID",'总表1-集团经营计划汇总表 +利润总额+回正时间2个' "sheetName",'2022集团经营计划汇总表' "topDescription",'SEA_GREEN' "headerBgColor",'LIGHT_YELLOW' "headerFontColor",1 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" From Dual
+Select 'groupsheet1' "sheetID",'总表1-经营计划汇总表 +利润总额+回正时间2个' "sheetName",'2022集团经营计划汇总表' "topDescription",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",1 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" ,0 As "frozenRowindex",2 As "frozenColumnindex",'LIGHT_YELLOW' As "formulaBgColor",'WHITE' "topDescriptionBgColor",'BLACK' "topDescriptionFontColor",'center' "topDescriptionTextalign",'15' "topDescriptionTextSize"  From Dual
 Union All
-Select 'groupsheet2' "sheetID",'总表2-集团现金流合计表' "sheetName",'2022年度各子公司动态现金流表' "topDescription",'DARK_TEAL' "headerBgColor",'LIGHT_GREEN' "headerFontColor",2 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" From Dual
+Select 'groupsheet2' "sheetID",'总表2-现金流合计表' "sheetName",'2022年度各子公司动态现金流表' "topDescription",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",2 "sheetOrder",1 "isUseRowCollapse",1 "isDefaultCollapseRow" ,0 As "frozenRowindex",2 As "frozenColumnindex",'LIGHT_YELLOW' As "formulaBgColor",'WHITE' "topDescriptionBgColor",'BLACK' "topDescriptionFontColor",'center' "topDescriptionTextalign",'15' "topDescriptionTextSize"  From Dual
 Union All
-Select 'groupsheet3' "sheetID",'总表3-供销存计划表（示例，线上直接导出）' "sheetName",'集团公司2021年度供销存计划明细分解表' "topDescription",'GREY_40_PERCENT' "headerBgColor",'LIGHT_TURQUOISE' "headerFontColor",3 "sheetOrder",1 "isUseRowCollapse",0 "isDefaultCollapseRow" From Dual
+Select 'groupsheet3' "sheetID",'总表3-供销存计划表（示例，线上直接导出）' "sheetName",'集团公司2021年度供销存计划明细分解表' "topDescription",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",3 "sheetOrder",1 "isUseRowCollapse",0 "isDefaultCollapseRow" ,0 As "frozenRowindex",3 As "frozenColumnindex",'LIGHT_YELLOW' As "formulaBgColor",'WHITE' "topDescriptionBgColor",'BLACK' "topDescriptionFontColor",'center' "topDescriptionTextalign",'15' "topDescriptionTextSize"  From Dual  
 )
 Select * From Base Order By "sheetOrder";
 --- 2、sheet页的表头集合 
