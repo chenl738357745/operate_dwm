@@ -25,6 +25,6 @@ SELECT  1 "fieldLevel",0 "isHide",1"isEnd",'PALE_BLUE' "headerBgColor",'GREY_80_
 union all
 SELECT  1 "fieldLevel",0 "isHide",1"isEnd",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",'WHITE' "dataBgColor",  '项目名称1' "fieldId",'项目名称' "lable",'OBJECT_NAME1' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",2 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
 union all
-SELECT  1 "fieldLevel",0 "isHide",1"isEnd",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",'WHITE' "dataBgColor",  '项目名称2' "fieldId",'项目名称' "lable",'OBJECT_NAME2' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",3 "fieldOrder",'' "parentId",'left' "textAlign",1 "isColumnMerge"  From Dual
+SELECT  1 "fieldLevel",0 "isHide",1"isEnd",'PALE_BLUE' "headerBgColor",'GREY_80_PERCENT' "headerFontColor",'WHITE' "dataBgColor",  '项目名称2' "fieldId",'项目名称' "lable",'OBJECT_NAME' "field",'auto' "width",'left' "align",'#,##0.00' "dataFormat",3 "fieldOrder",'' "parentId",'left' "textAlign",0 "isColumnMerge"  From Dual
 
 ) resultdata;

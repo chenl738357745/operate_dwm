@@ -1,4 +1,4 @@
-create or replace PROCEDURE "P_OPM_ED_PROJ_CHENL" (
+create or replace PROCEDURE "P_OPM_ED_PROJ_INVESTMENT" (
     userid         IN    VARCHAR2,--当前用户id
     stationid      IN    VARCHAR2,--当前用户岗位id
     departmentid   IN    VARCHAR2,--当前用户部门id
@@ -6,15 +6,116 @@ create or replace PROCEDURE "P_OPM_ED_PROJ_CHENL" (
     projectid      IN    VARCHAR2,--所属项目id
     planyear       IN    NUMBER,--计划年
     projsheet2     OUT   SYS_REFCURSOR--2、sheet页的数据源集合 【根据集合顺序】
-) is
+) AS
+-- operate plan  
+--附表2-投资计划表 (2)+删除附表
+--作者：chenl
+--日期：2021/09/23
    fieldname clob;
+   fieldname1 clob;
    v_sql_exec clob;
 BEGIN
 
-SELECT  wm_concat( '''' || object_name || '''' ) into fieldname  FROM opm_proj_investment_plan WHERE   plan_year = 2021 and BELONG_PROJ_ID='3d44a12d-6aef-40e1-9a5d-92e54d223878';
-
-v_sql_exec:='
-with base as(SELECT
+   -- SELECT 'select ''其中：土地出让金（或土地收购价）'' object_name,' || wm_concat ('''' || "kf_land_transfer_fee" || '''') || ' from dual' FROM base UNION ALL
+    
+ SELECT 'select ''主键'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "id" || '''') || ' from dual
+union all
+select ''土地成本'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_cost" || '''') || ' from dual
+union all
+select ''其中：土地出让金（或土地收购价）'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_transfer_fee" || '''') || ' from dual
+union all
+select ''其中：补交地价款'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_payment" || '''') || ' from dual
+union all
+select ''其中：大市政配套费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_municipal_support" || '''') || ' from dual
+union all
+select ''其中：契税'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_deed_tax" || '''') || ' from dual
+union all
+select ''其中：拆迁补偿费、土地熟化费用'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_compensation" || '''') || ' from dual
+union all
+select ''其中：其他'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_other" || '''') || ' from dual
+union all
+select ''政策性收费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_policy_charge" || '''') || ' from dual
+union all
+select ''前期工程费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_proj_costs" || '''') || ' from dual
+union all
+select ''基础设施费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_facil_fee" || '''') || ' from dual
+union all
+select ''园林绿化道路'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_landscap_road" || '''') || ' from dual
+union all
+select ''建安工程费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_proj_costs" || '''') || ' from dual
+union all
+select ''其中：基础工程'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_basic_proj" || '''') || ' from dual
+union all
+select ''其中：地下结构'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_underground_structure" || '''') || ' from dual
+union all
+select ''其中：地上结构'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_ontheground_structure" || '''') || ' from dual
+union all
+select ''其中：外装'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_exterior" || '''') || ' from dual
+union all
+select ''其中：初装修'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_initial_decoration" || '''') || ' from dual
+union all
+select ''其中：公区精装修'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_public_exquisite" || '''') || ' from dual
+union all
+select ''其中：户内精装修'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_indoor_exquisite" || '''') || ' from dual
+union all
+select ''其中：给排水'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_drainage" || '''') || ' from dual
+union all
+select ''其中：强电'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_strong_current" || '''') || ' from dual
+union all
+select ''其中：采暖'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_heating" || '''') || ' from dual
+union all
+select ''其中：通风空调'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_airiness" || '''') || ' from dual
+union all
+select ''其中：消防'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_fire_control" || '''') || ' from dual
+union all
+select ''其中：电梯'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_elevator" || '''') || ' from dual
+union all
+select ''其中：弱电及智能化'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_weak_current" || '''') || ' from dual
+union all
+select ''其中：其他'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "ja_other" || '''') || ' from dual
+union all
+select ''公共配套建设费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "pc_support_construct_fee" || '''') || ' from dual
+union all
+select ''开发间接费'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "pc_development_overhead" || '''') || ' from dual
+union all
+select ''其中：物业补贴'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "pc_property_subsidy" || '''') || ' from dual
+union all
+select ''其中：品质提升基金、科研费用'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "pc_resear_expenses" || '''') || ' from dual
+union all
+select ''其中：其他'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "pc_other" || '''') || ' from dual
+union all
+select ''销售费用'' object_name,''期间费用'' object_name1,'|| wm_concat ('''' || "sa_sales_expense" || '''') || ' from dual
+union all
+select ''管理费用'' object_name,''期间费用'' object_name1,'|| wm_concat ('''' || "sa_manage_expense" || '''') || ' from dual
+union all
+select ''财务费用'' object_name,''期间费用'' object_name1,'|| wm_concat ('''' || "sa_finance_expense" || '''') || ' from dual
+union all
+select ''其中：资本化利息'' object_name,''期间费用'' object_name1,'|| wm_concat ('''' || "sa_capitali_interest" || '''') || ' from dual
+union all
+select ''其中：费用化利息'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "sa_expensed_interest" || '''') || ' from dual
+union all
+select ''其中：其他'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "sa_other" || '''') || ' from dual
+union all
+select ''增值税'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_the_tax" || '''') || ' from dual
+union all
+select ''城市维护建设税、教育费附加及地方教育费附加'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_urban_construc_tax" || '''') || ' from dual
+union all
+select ''土地增值税（预缴）'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_advance" || '''') || ' from dual
+union all
+select ''土地增值税（清算后补缴）'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_payment" || '''') || ' from dual
+union all
+select ''土地使用税'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_land_use_tax" || '''') || ' from dual
+union all
+select ''印花税（含土地印花等）'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_stamp_duty" || '''') || ' from dual
+union all
+select ''其他'' object_name,''税金及附加'' object_name1,'|| wm_concat ('''' || "ld_other" || '''') || ' from dual
+union all
+select ''总投资（所得税前成本）'' object_name,''合计'' object_name1,'|| wm_concat ('''' || "total_investment" || '''') || ' from dual
+union all
+select ''其中：可控成本（所得税前成本-税金及附加-土地出让金-补交地价款-契税）'' object_name,'''' object_name1,'|| wm_concat ('''' || "controllable_costs" || '''') || ' from dual
+' into v_sql_exec FROM 
+(
+(SELECT
     id as "id", ---
     plan_year as "plan_year", ---计划年份
     parent_id as "parent_id", ---父级ID
@@ -23,6 +124,8 @@ with base as(SELECT
     object_id as "object_id", ---对象ID
     object_name as "object_name", ---对象名称
     object_type as "object_type", ---对象类别
+    object_level_name_one as "object_level_name_one",  
+    object_level_name_one as "object_level_name_two",  
     nvl(fma_kf_land_cost, kf_land_cost) AS "kf_land_cost", ---土地成本
     nvl(fma_kf_land_transfer_fee, kf_land_transfer_fee) AS "kf_land_transfer_fee", ---其中：土地出让金（或土地收购价）
     nvl(fma_kf_land_payment, kf_land_payment) AS "kf_land_payment", ---其中：补交地价款
@@ -73,16 +176,12 @@ with base as(SELECT
 FROM
     opm_proj_investment_plan
 WHERE
-    plan_year = 2021 and BELONG_PROJ_ID=''3d44a12d-6aef-40e1-9a5d-92e54d223878'')
-    
- 
-    
-select * from (select  "object_name" from base) pivot (sum( "object_name") for  "object_name" in ('||fieldname||'));';
-OPEN projsheet2 FOR  v_sql_exec;
-END P_OPM_ED_PROJ_chenl;
+    plan_year = planyear and BELONG_PROJ_ID=projectid)
 
- 
+) base;
+--DBMS_OUTPUT.PUT_LINE(v_sql_exec);
+OPEN projsheet2 FOR  v_sql_exec;
+END P_OPM_ED_PROJ_INVESTMENT;
+
+
  --   SELECT wm_concat(t."id"),wm_concat(t."object_type") FROM base t
- 
- 
- 
