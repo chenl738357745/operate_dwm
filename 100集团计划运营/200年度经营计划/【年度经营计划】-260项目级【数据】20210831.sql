@@ -15,9 +15,8 @@ create or replace PROCEDURE "P_OPM_ED_PROJ_INVESTMENT" (
    fieldname1 clob;
    v_sql_exec clob;
 BEGIN
-
    -- SELECT 'select ''其中：土地出让金（或土地收购价）'' object_name,' || wm_concat ('''' || "kf_land_transfer_fee" || '''') || ' from dual' FROM base UNION ALL
-    
+
  SELECT 'select ''主键'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "id" || '''') || ' from dual
 union all
 select ''土地成本'' object_name,''开发成本'' object_name1,'|| wm_concat ('''' || "kf_land_cost" || '''') || ' from dual
@@ -177,10 +176,14 @@ FROM
     opm_proj_investment_plan
 WHERE
     plan_year = planyear and BELONG_PROJ_ID=projectid)
-
 ) base;
 --DBMS_OUTPUT.PUT_LINE(v_sql_exec);
 OPEN projsheet2 FOR  v_sql_exec;
+EXCEPTION
+    WHEN OTHERS THEN
+        dbms_output.put_line(SQLERRM);
+   OPEN projsheet2 FOR  select '失败请,联系管理员查看,【投资计划表（'||projectid||'）】'||planyear||'年是否存初始数据' as  object_name from dual;
+
 END P_OPM_ED_PROJ_INVESTMENT;
 
 
